@@ -152,7 +152,7 @@ namespace UniversalLeveler
 
         private static void Print(string msg)
         {
-            Game.PrintChat("<font color='#ff3232'>Universal</font><font color='#8C8C8C'>Leveler:</font> <font color='#FFFFFF'>" + msg + "</font>");
+            Game.PrintChat("<font color='#ff3232'>Universal</font><font color='#BABABA'>Leveler:</font> <font color='#FFFFFF'>" + msg + "</font>");
         }
     }
 }

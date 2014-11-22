@@ -37,7 +37,7 @@ namespace UniversalPings
             Drawing.OnPreReset += Drawing_OnPreReset;
             Drawing.OnPostReset += Drawing_OnPostReset;
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
-            Game.PrintChat("universal pings loaded");
+           Print("loaded!");
         }
 
         private void Drawing_OnPostReset(EventArgs args)
@@ -109,6 +109,11 @@ namespace UniversalPings
                 Console.WriteLine(e);
             }
 
+        }
+
+        private void Print(string msg)
+        {
+            Game.PrintChat("<font color='#ff3232'>Universal</font><font color='#BABABA'>Pings:</font> <font color='#FFFFFF'>" + msg + "</font>");
         }
     }
 
