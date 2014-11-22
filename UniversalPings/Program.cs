@@ -10,10 +10,11 @@ namespace UniversalPings
     {
         private static Program _instance;
         private readonly IList<Ping> _pings = new List<Ping>();
+        private Menu _menu;
 
         static void Main(string[] args)
         {
-           _instance = new Program();
+            _instance = new Program();
         }
 
         public Program()
@@ -32,12 +33,16 @@ namespace UniversalPings
 
         private void Game_OnGameLoad(EventArgs args)
         {
+            _menu = new Menu("Universal Pings", "UniversalPings", true);
+            _menu.AddItem(new MenuItem("print", "Print").SetValue(new StringList(new[] { "Champion", "Hero", "Both" })));
+            _menu.AddToMainMenu();
+
             Game.OnGameUpdate += GameOnOnGameUpdate;
             Drawing.OnEndScene += Drawing_OnEndScene;
             Drawing.OnPreReset += Drawing_OnPreReset;
             Drawing.OnPostReset += Drawing_OnPostReset;
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
-           Print("loaded!");
+            Print("Loaded!");
         }
 
         private void Drawing_OnPostReset(EventArgs args)
@@ -100,7 +105,22 @@ namespace UniversalPings
                         {
                             c = new Color(255, 204, 203);
                         }
-                        _pings.Add(new Ping(src, Game.ClockTime + 2f, new Vector2(decoded.X, decoded.Y), c));
+
+                        int selectedIndex = _menu.Item("print").GetValue<StringList>().SelectedIndex;
+                        String name;
+                        switch (selectedIndex)
+                        {
+                            case 0:
+                                name = src.ChampionName;
+                                break;
+                            case 1:
+                                name = src.Name;
+                                break;
+                            default:
+                                name = src.Name + " (" + src.ChampionName + ")";
+                                break;
+                        }
+                        _pings.Add(new Ping(name, Game.ClockTime + 2f, new Vector2(decoded.X, decoded.Y), c));
                     }
                 }
             }
@@ -119,19 +139,14 @@ namespace UniversalPings
 
     class Ping : Render.Text
     {
-        public Ping(GameObject src, float end, Vector2 loc, Color c)
-            : base(src.Name, 0, 0, 20, c)
+        public Ping(String name, float end, Vector2 loc, Color c)
+            : base(name, 0, 0, 20, c)
         {
             End = end;
             Loc = loc;
             Centered = true;
             OutLined = true;
-            PositionUpdate = delegate
-            {
-                Vector2 v2 = Drawing.WorldToScreen(new Vector3(Loc, ObjectManager.Player.Position.Z));
-                //v2.Y += 70;
-                return v2;
-            };
+            PositionUpdate = () => Drawing.WorldToScreen(new Vector3(Loc, NavMesh.GetHeightForPosition(loc.X, loc.Y)));
         }
 
         public float End { get; set; }
