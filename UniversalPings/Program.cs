@@ -34,7 +34,7 @@ namespace UniversalPings
         private void Game_OnGameLoad(EventArgs args)
         {
             _menu = new Menu("Universal Pings", "UniversalPings", true);
-            _menu.AddItem(new MenuItem("print", "Print").SetValue(new StringList(new[] { "Champion", "Hero", "Both" })));
+            _menu.AddItem(new MenuItem("print", "Show").SetValue(new StringList(new[] { "Champion", "Hero", "Both" })));
             _menu.AddToMainMenu();
 
             Game.OnGameUpdate += GameOnOnGameUpdate;
