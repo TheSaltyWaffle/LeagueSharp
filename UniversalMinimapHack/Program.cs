@@ -295,7 +295,7 @@ namespace UniversalMinimapHack
         private string Format(float f)
         {
             TimeSpan t = TimeSpan.FromSeconds(f);
-            if (t.Minutes < 1) return t.Seconds + "s";
+            if (t.Minutes < 1) return t.Seconds + "";
             if (t.Seconds >= 10)
             {
                 return t.Minutes + ":" + t.Seconds;
