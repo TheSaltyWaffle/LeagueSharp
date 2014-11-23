@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1A185251-309D-464A-B71A-AF914A17DA02}</ProjectGuid>
+    <ProjectGuid>{7CF56175-FA98-4FCB-A926-4E5EEFD3B301}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UniversalMapHack</RootNamespace>
-    <AssemblyName>UniversalMapHack</AssemblyName>
+    <RootNamespace>UniversalMinimapHack</RootNamespace>
+    <AssemblyName>UniversalMinimapHack</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PreBuildEvent />

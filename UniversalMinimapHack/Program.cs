@@ -5,12 +5,12 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Web.Script.Serialization;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using System.Web.Script.Serialization;
 
-namespace UniversalMapHack
+namespace UniversalMinimapHack
 {
     class Program
     {
@@ -24,7 +24,7 @@ namespace UniversalMapHack
 
         static void Game_OnGameLoad(EventArgs args)
         {
-            Menu menu = new Menu("Universal MapHack", "UniversalMapHack", true);
+            Menu menu = new Menu("Universal MinimapHack", "UniversalMinimapHack", true);
             _slider = new MenuItem("scale", "Scale % (F5 to Reload)").SetValue(new Slider(20));
             menu.AddItem(_slider);
             menu.AddToMainMenu();
@@ -140,7 +140,7 @@ namespace UniversalMapHack
 
         private static void Print(string msg)
         {
-            Game.PrintChat("<font color='#ff3232'>Universal</font><font color='#BABABA'>MapHack:</font> <font color='#FFFFFF'>" + msg + "</font>");
+            Game.PrintChat("<font color='#ff3232'>Universal</font><font color='#BABABA'>MinimapHack:</font> <font color='#FFFFFF'>" + msg + "</font>");
         }
 
         public static string GameVersion()
@@ -151,7 +151,7 @@ namespace UniversalMapHack
 
         public static string GetImageCached(string champName)
         {
-            string path = Path.GetTempPath() + "UniversalMapHack";
+            string path = Path.GetTempPath() + "UniversalMinimapHack";
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);

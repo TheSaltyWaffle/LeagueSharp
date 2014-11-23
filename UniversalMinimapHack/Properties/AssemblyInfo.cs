@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("UniversalMapHack")]
+[assembly: AssemblyTitle("UniversalMinimapHack")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("UniversalMapHack")]
+[assembly: AssemblyProduct("UniversalMinimapHack")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f7c709b5-d8f0-4ce4-b5b0-1151f4009414")]
+[assembly: Guid("6e820329-79ce-41f1-899b-d8c575ee5089")]
 
 // Version information for an assembly consists of the following four values:
 //
