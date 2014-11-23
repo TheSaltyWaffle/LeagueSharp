@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Net;
 using LeagueSharp;
@@ -63,18 +64,36 @@ namespace UniversalMapHack
 
         static void LoadImage(Obj_AI_Hero hero)
         {
-            int attempt = 0;
-            Bitmap tmp = DownloadImage(hero.ChampionName);
-            while (tmp == null && attempt < 5)
+            Bitmap bmp = null;
+            if (File.Exists(GetImageCached(hero.ChampionName)))
             {
-                tmp = DownloadImage(hero.ChampionName);
-                attempt++;
+                bmp = new Bitmap(GetImageCached(hero.ChampionName));
             }
-            if (tmp != null)
+            else
             {
-                Bitmap tmp2 = CreateFinalImage(tmp, 0, 0, tmp.Width);
-                tmp.Dispose();
-                Render.Sprite sprite = new Render.Sprite(tmp2, new Vector2(0, 0));
+                int attempt = 0;
+                Bitmap tmp = DownloadImage(hero.ChampionName);
+                while (tmp == null && attempt < 5)
+                {
+                    tmp = DownloadImage(hero.ChampionName);
+                    attempt++;
+                }
+
+                if (tmp == null)
+                {
+                    Print("Failed to load " + hero.ChampionName + " after " + attempt + 1 + " attempts!");
+                }
+                else
+                {
+                    bmp = CreateFinalImage(tmp, 0, 0, tmp.Width);
+                    bmp.Save(GetImageCached(hero.ChampionName));
+                    tmp.Dispose();
+                }
+            }
+
+            if (bmp != null)
+            {
+                Render.Sprite sprite = new Render.Sprite(bmp, new Vector2(0, 0));
                 sprite.GrayScale();
                 sprite.Scale = new Vector2(GetScale(), GetScale());
                 Obj_AI_Hero hero1 = hero;
@@ -89,16 +108,13 @@ namespace UniversalMapHack
                 sprite.Add(0);
                 Sprites.Add(sprite);
             }
-            else
-            {
-                Print("Failed to load " + hero.ChampionName + " after " + attempt + 1 + " attempts!");
-            }
+
         }
 
         private static Bitmap DownloadImage(string champName)
         {
             WebRequest request = WebRequest.Create("http://ddragon.leagueoflegends.com/cdn/" + _version + "/img/champion/" + champName + ".png");
-            System.IO.Stream responseStream;
+            Stream responseStream;
             using (WebResponse response = request.GetResponse())
             using (responseStream = response.GetResponseStream())
                 return responseStream != null ? new Bitmap(responseStream) : null;
@@ -131,6 +147,22 @@ namespace UniversalMapHack
         {
             String json = new WebClient().DownloadString("http://ddragon.leagueoflegends.com/realms/euw.json");
             return (string)new JavaScriptSerializer().Deserialize<Dictionary<String, Object>>(json)["v"];
+        }
+
+        public static string GetImageCached(string champName)
+        {
+            string path = Path.GetTempPath() + "UniversalMapHack";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            path += "\\" + _version;
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            return path + "\\" + champName + ".png";
         }
 
     }
