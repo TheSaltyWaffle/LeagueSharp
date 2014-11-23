@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
@@ -14,19 +15,7 @@ namespace RecallTracker
         private static Render.Sprite _sprite;
         public static void Main(string[] args)
         {
-            Game.OnGameUpdate += GameOnOnGameUpdate;
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
-            Drawing.OnDraw += DrawingOnOnDraw;
-        }
-
-        private static void GameOnOnGameUpdate(EventArgs args)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void DrawingOnOnDraw(EventArgs args)
-        {
-            //
         }
 
         public static void Game_OnGameProcessPacket(GamePacketEventArgs args)
@@ -42,7 +31,8 @@ namespace RecallTracker
 
         public static void Game_OnGameLoad(EventArgs args)
         {
-            Game.PrintChat(Drawing.Direct3DDevice.Viewport.Height + "");
+            GameObject.OnCreate += GameObject_OnCreate;
+            //Properties.Resources.RecallBar.Save("test123.png");
             float x = (Drawing.Direct3DDevice.Viewport.Width - Properties.Resources.RecallBar.Width)/2f;
             float y = Drawing.Direct3DDevice.Viewport.Height*3f/4f;
             _sprite = new Render.Sprite(Properties.Resources.RecallBar, new Vector2(x,y));
@@ -50,6 +40,17 @@ namespace RecallTracker
             _sprite.Add(0);
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
             Game.PrintChat("Test 2");
+        }
+
+        static void GameObject_OnCreate(GameObject sender, EventArgs args)
+        {
+            if (sender.Name.StartsWith("Minion") && sender.Team == ObjectManager.Player.Team)
+            {
+                Obj_AI_Minion minion = (Obj_AI_Minion) sender;
+                Game.PrintChat(sender.Name);
+                //GameObjectType.
+            }
+            
         }
     }
 }
