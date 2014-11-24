@@ -104,9 +104,6 @@ namespace UniversalLeveler
             {
                 MenuItem item = _menu.GetSlider(entry.Key.ToString());
                 _menuMap[item] = item.GetValue<Slider>().Value;
-
-                //TODO
-                Game.PrintChat(entry.Key.ToString() + " " + GetMinLevel(entry.Key));
             }
 
             ParseMenu();
