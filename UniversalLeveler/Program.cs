@@ -95,7 +95,7 @@ namespace UniversalLeveler
                 _menu.AddSubMenu(subMenu);
             }
 
-            _activate = new MenuItem("activate", "Level to start?").SetValue(new StringList(new string[] { "2", "3" }));
+            _activate = new MenuItem("activate", "Level to start?").SetValue(new StringList(new[] { "2", "3" }));
             _menu.AddItem(_activate);
             _menu.AddToMainMenu();
 

@@ -136,7 +136,7 @@ namespace UniversalMinimapHack
                 }
 
 
-                if (pos.LastSeen != 0f && SsFallbackPing.GetValue<bool>() && !pos.Hero.IsDead)
+                if (pos.LastSeen != 0f && SsFallbackPing.GetValue<bool>() && !pos.Hero.IsVisible)
                 {
                     if (Game.ClockTime - pos.LastSeen >= SsTimerMinPing.GetValue<Slider>().Value && !pos.Pinged)
                     {
