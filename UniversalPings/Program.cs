@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -90,6 +91,7 @@ namespace UniversalPings
                 {
                     Packet.S2C.Ping.Struct decoded = Packet.S2C.Ping.Decoded(args.PacketData);
                     Obj_AI_Hero src = ObjectManager.GetUnitByNetworkId<Obj_AI_Hero>(decoded.SourceNetworkId);
+                    GameObject target = ObjectManager.GetUnitByNetworkId<GameObject>(decoded.TargetNetworkId);
                     if (decoded.Type != Packet.PingType.OnMyWay && src != null && src.IsValid)
                     {
                         Color c = Color.White;
@@ -120,7 +122,7 @@ namespace UniversalPings
                                 name = src.Name + " (" + src.ChampionName + ")";
                                 break;
                         }
-                        _pings.Add(new Ping(name, Game.ClockTime + 2f, new Vector2(decoded.X, decoded.Y), c));
+                        _pings.Add(new Ping(name, Game.ClockTime + 2f, decoded.X, decoded.Y, target, c));
                     }
                 }
             }
@@ -139,17 +141,29 @@ namespace UniversalPings
 
     class Ping : Render.Text
     {
-        public Ping(String name, float end, Vector2 loc, Color c)
+        public Ping(String name, float end, float x, float y, GameObject target, Color c)
             : base(name, 0, 0, 20, c)
         {
             End = end;
-            Loc = loc;
+            Target = target;
+            Loc = new Vector2(x, y);
             Centered = true;
             OutLined = true;
-            PositionUpdate = () => Drawing.WorldToScreen(new Vector3(Loc, NavMesh.GetHeightForPosition(loc.X, loc.Y)));
+            PositionUpdate = delegate
+            {
+                if (Target.NetworkId != 0)
+                {
+                    
+                    return Drawing.WorldToScreen(Target.Position);
+                }
+                return
+                    Drawing.WorldToScreen(new Vector3(x, y,
+                        NavMesh.GetHeightForPosition(x, y)));
+            };
         }
 
         public float End { get; set; }
+        public GameObject Target { get; set; }
         public Vector2 Loc { get; set; }
 
     }
