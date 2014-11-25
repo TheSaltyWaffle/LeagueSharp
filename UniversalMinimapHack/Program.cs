@@ -19,7 +19,7 @@ namespace UniversalMinimapHack
         private string _version;
         private readonly IList<Position> _positions = new List<Position>();
         private MenuItem _slider;
-        private MenuItem SsFallbackPing;
+        private MenuItem _ssFallbackPing;
         public MenuItem SsTimerEnabler { get; set; }
 
         private static void Main(string[] args)
@@ -44,52 +44,60 @@ namespace UniversalMinimapHack
 
         private void Game_OnGameLoad(EventArgs args)
         {
-            Menu menu = new Menu("Universal MinimapHack", "UniversalMinimapHack", true);
-            _slider = new MenuItem("scale", "Icon Scale % (F5 to Reload)").SetValue(new Slider(20));
-            IconOpacity = new MenuItem("opacity", "Icon Opacity % (F5 to Reload)").SetValue(new Slider(70));
-            SsTimerEnabler =
-                new MenuItem("enableSS", "Enable SS Timer").SetValue(true);
-            SsTimerSize = new MenuItem("sizeSS", "SS Text Size (F5 to Reload)").SetValue(new Slider(15));
-            SsTimerOffset = new MenuItem("offsetSS", "SS Text Height").SetValue(new Slider(15, -50, +50));
-            SsTimerMin = new MenuItem("minSS", "Show after X seconds").SetValue(new Slider(30, 1, 180));
-            SsTimerMinPing = new MenuItem("minPingSS", "Ping after X seconds").SetValue(new Slider(30, 5, 180));
-            SsFallbackPing = new MenuItem("fallbackSS", "Fallback ping (local)").SetValue(false);
-            menu.AddItem(new MenuItem("", "[Customize]"));
-            menu.AddItem(_slider);
-            menu.AddItem(IconOpacity);
-            Menu ssMenu = new Menu("SS Timer", "ssTimer");
-            ssMenu.AddItem(SsTimerEnabler);
-            ssMenu.AddItem(new MenuItem("1", "[Extra]"));
-            ssMenu.AddItem(SsTimerMin);
-            ssMenu.AddItem(SsFallbackPing);
-            ssMenu.AddItem(SsTimerMinPing);
-            ssMenu.AddItem(new MenuItem("2", "[Customize]"));
-            ssMenu.AddItem(SsTimerSize);
-            ssMenu.AddItem(SsTimerOffset);
-            menu.AddSubMenu(ssMenu);
-            menu.AddToMainMenu();
-
-            int attempt = 0;
-            _version = GameVersion();
-            while (string.IsNullOrEmpty(_version) && attempt < 5)
+            try
             {
+                Menu menu = new Menu("Universal MinimapHack", "UniversalMinimapHack", true);
+                _slider = new MenuItem("scale", "Icon Scale % (F5 to Reload)").SetValue(new Slider(20));
+                IconOpacity = new MenuItem("opacity", "Icon Opacity % (F5 to Reload)").SetValue(new Slider(70));
+                SsTimerEnabler =
+                    new MenuItem("enableSS", "Enable SS Timer").SetValue(true);
+                SsTimerSize = new MenuItem("sizeSS", "SS Text Size (F5 to Reload)").SetValue(new Slider(15));
+                SsTimerOffset = new MenuItem("offsetSS", "SS Text Height").SetValue(new Slider(15, -50, +50));
+                SsTimerMin = new MenuItem("minSS", "Show after X seconds").SetValue(new Slider(30, 1, 180));
+                SsTimerMinPing = new MenuItem("minPingSS", "Ping after X seconds").SetValue(new Slider(30, 5, 180));
+                _ssFallbackPing = new MenuItem("fallbackSS", "Fallback ping (local)").SetValue(false);
+                menu.AddItem(new MenuItem("", "[Customize]"));
+                menu.AddItem(_slider);
+                menu.AddItem(IconOpacity);
+                Menu ssMenu = new Menu("SS Timer", "ssTimer");
+                ssMenu.AddItem(SsTimerEnabler);
+                ssMenu.AddItem(new MenuItem("1", "[Extra]"));
+                ssMenu.AddItem(SsTimerMin);
+                ssMenu.AddItem(_ssFallbackPing);
+                ssMenu.AddItem(SsTimerMinPing);
+                ssMenu.AddItem(new MenuItem("2", "[Customize]"));
+                ssMenu.AddItem(SsTimerSize);
+                ssMenu.AddItem(SsTimerOffset);
+                menu.AddSubMenu(ssMenu);
+                menu.AddToMainMenu();
+
+                int attempt = 0;
                 _version = GameVersion();
-                attempt++;
-            }
+                while (string.IsNullOrEmpty(_version) && attempt < 5)
+                {
+                    _version = GameVersion();
+                    attempt++;
+                }
 
 
-            if (!string.IsNullOrEmpty(_version))
-            {
-                LoadImages();
-                Print("Loaded!");
-                Game.OnGameUpdate += Game_OnGameUpdate;
-                Drawing.OnEndScene += Drawing_OnEndScene;
-                Drawing.OnPreReset += Drawing_OnPreReset;
-                Drawing.OnPostReset += Drawing_OnPostReset;
+                if (!string.IsNullOrEmpty(_version))
+                {
+                    LoadImages();
+                    Print("Loaded!");
+                    Game.OnGameUpdate += Game_OnGameUpdate;
+                    Drawing.OnEndScene += Drawing_OnEndScene;
+                    Drawing.OnPreReset += Drawing_OnPreReset;
+                    Drawing.OnPostReset += Drawing_OnPostReset;
+                }
+                else
+                {
+                    Print("Failed to load ddragon version after " + attempt + 1 + " attempts!");
+                }
             }
-            else
+            catch (Exception e)
             {
-                Print("Failed to load ddragon version after " + attempt + 1 + " attempts!");
+                Console.WriteLine("[ERROR] "+e.ToString());
+                Print("[ERROR] " + e.ToString());
             }
         }
 
@@ -136,22 +144,22 @@ namespace UniversalMinimapHack
                 }
 
 
-                if (pos.LastSeen != 0f && SsFallbackPing.GetValue<bool>() && !pos.Hero.IsVisible)
+                if (pos.LastSeen != 0f && _ssFallbackPing.GetValue<bool>() && !pos.Hero.IsVisible)
                 {
                     if (Game.ClockTime - pos.LastSeen >= SsTimerMinPing.GetValue<Slider>().Value && !pos.Pinged)
                     {
                         Packet.S2C.Ping.Encoded(new Packet.S2C.Ping.Struct(pos.LastLocation.X, pos.LastLocation.Y, pos.Hero.NetworkId,
                             ObjectManager.Player.NetworkId, Packet.PingType.EnemyMissing)).Process();
                         pos.Pinged = true;
-                    } 
+                    }
                 }
-                
+
             }
         }
 
         private float GetScale()
         {
-            return _slider.GetValue<Slider>().Value/100f;
+            return _slider.GetValue<Slider>().Value / 100f;
         }
 
         private void LoadImages()
@@ -196,7 +204,7 @@ namespace UniversalMinimapHack
 
             if (bmp != null)
             {
-                Position pos = new Position(hero, ChangeOpacity(bmp, IconOpacity.GetValue<Slider>().Value/100f),
+                Position pos = new Position(hero, ChangeOpacity(bmp, IconOpacity.GetValue<Slider>().Value / 100f),
                     GetScale());
                 _positions.Add(pos);
             }
@@ -225,7 +233,7 @@ namespace UniversalMinimapHack
             using (Graphics g = Graphics.FromImage(finalImage))
             {
                 g.FillEllipse(tb, 0, 0, circleDiameter, circleDiameter);
-                Pen p = new Pen(System.Drawing.Color.DarkRed, 10) {Alignment = PenAlignment.Inset};
+                Pen p = new Pen(System.Drawing.Color.DarkRed, 10) { Alignment = PenAlignment.Inset };
                 g.DrawEllipse(p, 0, 0, circleDiameter, circleDiameter);
             }
             return finalImage;
@@ -235,7 +243,7 @@ namespace UniversalMinimapHack
         {
             Bitmap bmp = new Bitmap(img.Width, img.Height); // Determining Width and Height of Source Image
             Graphics graphics = Graphics.FromImage(bmp);
-            ColorMatrix colormatrix = new ColorMatrix {Matrix33 = opacityvalue};
+            ColorMatrix colormatrix = new ColorMatrix { Matrix33 = opacityvalue };
             ImageAttributes imgAttribute = new ImageAttributes();
             imgAttribute.SetColorMatrix(colormatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
             graphics.DrawImage(img, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height), 0, 0, img.Width,
@@ -255,7 +263,7 @@ namespace UniversalMinimapHack
         public string GameVersion()
         {
             String json = new WebClient().DownloadString("http://ddragon.leagueoflegends.com/realms/euw.json");
-            return (string) new JavaScriptSerializer().Deserialize<Dictionary<String, Object>>(json)["v"];
+            return (string)new JavaScriptSerializer().Deserialize<Dictionary<String, Object>>(json)["v"];
         }
 
         public string GetImageCached(string champName)
@@ -309,8 +317,8 @@ namespace UniversalMinimapHack
             Image.PositionUpdate = delegate
             {
                 Vector2 v2 = Drawing.WorldToMinimap(hero.ServerPosition);
-                v2.X -= Image.Width/2f;
-                v2.Y -= Image.Height/2f;
+                v2.X -= Image.Width / 2f;
+                v2.Y -= Image.Height / 2f;
                 return v2;
             };
             Image.Add(_layer);

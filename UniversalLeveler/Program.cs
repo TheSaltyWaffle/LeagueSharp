@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 
 namespace UniversalLeveler
 {
-    static class Program
+    internal static class Program
     {
-
         private static readonly IDictionary<SpellSlot, int> SpellShots = new Dictionary<SpellSlot, int>
         {
             {SpellSlot.Q, 2},
@@ -29,7 +29,7 @@ namespace UniversalLeveler
 
         private static void UnitOnOnLevelUp(Obj_AI_Base sender, CustomEvents.Unit.OnLevelUpEventArgs args)
         {
-            if (!sender.IsValid || !sender.IsMe || _priority == null || args.NewLevel <= 1)
+            if (!sender.IsValid || !sender.IsMe || _priority == null || TotalLeveled() == 0)
             {
                 return;
             }
@@ -38,45 +38,50 @@ namespace UniversalLeveler
             {
                 if (args.NewLevel > 3)
                 {
-                    if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level == 0 && args.NewLevel >= GetMinLevel(SpellSlot.Q))
+                    if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level == 0 &&
+                        args.NewLevel >= GetMinLevel(SpellSlot.Q))
                     {
                         ObjectManager.Player.Spellbook.LevelUpSpell(SpellSlot.Q);
                     }
-                    if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Level == 0 && args.NewLevel >= GetMinLevel(SpellSlot.W))
+                    if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Level == 0 &&
+                        args.NewLevel >= GetMinLevel(SpellSlot.W))
                     {
                         ObjectManager.Player.Spellbook.LevelUpSpell(SpellSlot.W);
                     }
-                    if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E).Level == 0 && args.NewLevel >= GetMinLevel(SpellSlot.E))
+                    if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E).Level == 0 &&
+                        args.NewLevel >= GetMinLevel(SpellSlot.E))
                     {
                         ObjectManager.Player.Spellbook.LevelUpSpell(SpellSlot.E);
                     }
                 }
+
+                if (args.NewLevel >= 6 && ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Level == 0 &&
+                    args.NewLevel >= GetMinLevel(SpellSlot.R))
+                {
+                    ObjectManager.Player.Spellbook.LevelUpSpell(SpellSlot.R);
+                }
             }
-
-
 
             StringList sl = _activate.GetValue<StringList>();
             if (args.NewLevel >= Int32.Parse(sl.SList[sl.SelectedIndex]))
             {
-                int attempt = 0;
                 foreach (SpellSlot s in _priority)
                 {
                     for (int i = 0; i < args.RemainingPoints; i++)
                     {
-                        attempt++;
-                        SpellSlot s1 = s;
-                        Utility.DelayAction.Add(Game.Ping * 3 * attempt, delegate
+                        if (((ObjectManager.Player.Spellbook.GetSpell(s).Level == 0 && args.NewLevel <= 3) ||
+                             args.NewLevel > 3) && args.NewLevel >= GetMinLevel(s))
                         {
-                            if (((ObjectManager.Player.Spellbook.GetSpell(s1).Level == 0 && args.NewLevel <= 3) ||
-                                args.NewLevel > 3) && args.NewLevel >= GetMinLevel(s1))
-                            {
-                                ObjectManager.Player.Spellbook.LevelUpSpell(s1);
-                            }
-                        });
+                            ObjectManager.Player.Spellbook.LevelUpSpell(s);
+                        }
                     }
                 }
             }
+        }
 
+        private static int TotalLeveled()
+        {
+            return new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }.Sum(s => ObjectManager.Player.Spellbook.GetSpell(s).Level);
         }
 
         private static void OnGameLoad(EventArgs args)
@@ -91,7 +96,7 @@ namespace UniversalLeveler
                 _menu.AddItem(menuItem);
 
                 Menu subMenu = new Menu(entry.Key.ToString() + " Extra", entry.Key.ToString() + "extra");
-                subMenu.AddItem(MakeSlider(entry.Key.ToString() + "extra", "Level after (inclusive)?", 1, 1, 18));
+                subMenu.AddItem(MakeSlider(entry.Key.ToString() + "extra", "Level after X (inclusive) ?", 1, 1, 18));
                 _menu.AddSubMenu(subMenu);
             }
 
@@ -159,7 +164,9 @@ namespace UniversalLeveler
 
         private static void Print(string msg)
         {
-            Game.PrintChat("<font color='#ff3232'>Universal</font><font color='#BABABA'>Leveler:</font> <font color='#FFFFFF'>" + msg + "</font>");
+            Game.PrintChat(
+                "<font color='#ff3232'>Universal</font><font color='#BABABA'>Leveler:</font> <font color='#FFFFFF'>" +
+                msg + "</font>");
         }
 
         private static MenuItem MakeSlider(string name, string display, int value, int min, int max)
