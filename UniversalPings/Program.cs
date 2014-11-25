@@ -7,13 +7,13 @@ using SharpDX;
 
 namespace UniversalPings
 {
-    class Program
+    internal class Program
     {
         private static Program _instance;
         private readonly IList<Ping> _pings = new List<Ping>();
         private Menu _menu;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             _instance = new Program();
         }
@@ -36,6 +36,16 @@ namespace UniversalPings
         {
             _menu = new Menu("Universal Pings", "UniversalPings", true);
             _menu.AddItem(new MenuItem("print", "Show").SetValue(new StringList(new[] { "Champion", "Hero", "Both" })));
+            _menu.AddItem(new MenuItem("block", "[Block Settings]"));
+            foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>())
+            {
+                if (hero.Team == ObjectManager.Player.Team && hero.NetworkId != ObjectManager.Player.NetworkId)
+                {
+                    _menu.AddItem(new MenuItem(hero.Name,
+                        hero.Name + " (" + hero.ChampionName + ")"))
+                        .SetValue(false);
+                }
+            }
             _menu.AddToMainMenu();
 
             Game.OnGameUpdate += GameOnOnGameUpdate;
@@ -91,55 +101,61 @@ namespace UniversalPings
                 {
                     Packet.S2C.Ping.Struct decoded = Packet.S2C.Ping.Decoded(args.PacketData);
                     Obj_AI_Hero src = ObjectManager.GetUnitByNetworkId<Obj_AI_Hero>(decoded.SourceNetworkId);
-                    GameObject target = ObjectManager.GetUnitByNetworkId<GameObject>(decoded.TargetNetworkId);
-                    if (decoded.Type != Packet.PingType.OnMyWay && src != null && src.IsValid)
+                    MenuItem blockItem = _menu.Item(src.Name);
+                    if (blockItem != null && blockItem.GetValue<bool>())
                     {
-                        Color c = Color.White;
-                        if (decoded.Type == Packet.PingType.EnemyMissing || decoded.Type == Packet.PingType.Fallback)
-                        {
-                            c = Color.LightYellow;
-                        }
-                        else if (decoded.Type == Packet.PingType.AssistMe)
-                        {
-                            c = Color.LightBlue;
-                        }
-                        else if (decoded.Type == Packet.PingType.Danger)
-                        {
-                            c = new Color(255, 204, 203);
-                        }
-
-                        int selectedIndex = _menu.Item("print").GetValue<StringList>().SelectedIndex;
-                        String name;
-                        switch (selectedIndex)
-                        {
-                            case 0:
-                                name = src.ChampionName;
-                                break;
-                            case 1:
-                                name = src.Name;
-                                break;
-                            default:
-                                name = src.Name + " (" + src.ChampionName + ")";
-                                break;
-                        }
-                        _pings.Add(new Ping(name, Game.ClockTime + 2f, decoded.X, decoded.Y, target, c));
+                        args.Process = false;
+                        return;
                     }
+                    GameObject target = ObjectManager.GetUnitByNetworkId<GameObject>(decoded.TargetNetworkId);
+                    if (decoded.Type == Packet.PingType.OnMyWay || !src.IsValid) return;
+                    Color c = Color.White;
+                    switch (decoded.Type)
+                    {
+                        case Packet.PingType.Fallback:
+                        case Packet.PingType.EnemyMissing:
+                            c = Color.LightYellow;
+                            break;
+                        case Packet.PingType.AssistMe:
+                            c = Color.LightBlue;
+                            break;
+                        case Packet.PingType.Danger:
+                            c = new Color(255, 204, 203);
+                            break;
+                    }
+
+                    int selectedIndex = _menu.Item("print").GetValue<StringList>().SelectedIndex;
+                    String name;
+                    switch (selectedIndex)
+                    {
+                        case 0:
+                            name = src.ChampionName;
+                            break;
+                        case 1:
+                            name = src.Name;
+                            break;
+                        default:
+                            name = src.Name + " (" + src.ChampionName + ")";
+                            break;
+                    }
+                    _pings.Add(new Ping(name, Game.ClockTime + 2f, decoded.X, decoded.Y, target, c));
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
-
         }
 
         private void Print(string msg)
         {
-            Game.PrintChat("<font color='#ff3232'>Universal</font><font color='#BABABA'>Pings:</font> <font color='#FFFFFF'>" + msg + "</font>");
+            Game.PrintChat(
+                "<font color='#ff3232'>Universal</font><font color='#BABABA'>Pings:</font> <font color='#FFFFFF'>" + msg +
+                "</font>");
         }
     }
 
-    class Ping : Render.Text
+    internal class Ping : Render.Text
     {
         public Ping(String name, float end, float x, float y, GameObject target, Color c)
             : base(name, 0, 0, 20, c)
@@ -153,7 +169,6 @@ namespace UniversalPings
             {
                 if (Target.NetworkId != 0)
                 {
-                    
                     return Drawing.WorldToScreen(Target.Position);
                 }
                 return
@@ -165,6 +180,5 @@ namespace UniversalPings
         public float End { get; set; }
         public GameObject Target { get; set; }
         public Vector2 Loc { get; set; }
-
     }
 }
