@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Web.Script.Serialization;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -20,6 +21,8 @@ namespace UniversalMinimapHack
         private readonly IList<Position> _positions = new List<Position>();
         private MenuItem _slider;
         private MenuItem _ssFallbackPing;
+        private MenuItem SsCircle;
+        private MenuItem SsCircleColor;
         public MenuItem SsTimerEnabler { get; set; }
 
         private static void Main(string[] args)
@@ -50,7 +53,7 @@ namespace UniversalMinimapHack
                 _slider = new MenuItem("scale", "Icon Scale % (F5 to Reload)").SetValue(new Slider(20));
                 IconOpacity = new MenuItem("opacity", "Icon Opacity % (F5 to Reload)").SetValue(new Slider(70));
                 SsTimerEnabler =
-                    new MenuItem("enableSS", "Enable SS Timer").SetValue(true);
+                    new MenuItem("enableSS", "Enable").SetValue(true);
                 SsTimerSize = new MenuItem("sizeSS", "SS Text Size (F5 to Reload)").SetValue(new Slider(15));
                 SsTimerOffset = new MenuItem("offsetSS", "SS Text Height").SetValue(new Slider(15, -50, +50));
                 SsTimerMin = new MenuItem("minSS", "Show after X seconds").SetValue(new Slider(30, 1, 180));
@@ -68,7 +71,15 @@ namespace UniversalMinimapHack
                 ssMenu.AddItem(new MenuItem("2", "[Customize]"));
                 ssMenu.AddItem(SsTimerSize);
                 ssMenu.AddItem(SsTimerOffset);
+                Menu ssCircleMenu = new Menu("SS Circles","ccCircles");
+                SsCircle = new MenuItem("ssCircle","Enable").SetValue(true);
+                SsCircleSize = new MenuItem("ssCircleSize", "Max Circle Size").SetValue(new Slider(7000, 500, 15000));
+                SsCircleColor = new MenuItem("ssCircleColor", "Circle color").SetValue(System.Drawing.Color.Green);
+                ssCircleMenu.AddItem(SsCircle);
+                ssCircleMenu.AddItem(SsCircleSize);
+                ssCircleMenu.AddItem(SsCircleColor);
                 menu.AddSubMenu(ssMenu);
+                menu.AddSubMenu(ssCircleMenu);
                 menu.AddToMainMenu();
 
                 int attempt = 0;
@@ -85,6 +96,7 @@ namespace UniversalMinimapHack
                     LoadImages();
                     Print("Loaded!");
                     Game.OnGameUpdate += Game_OnGameUpdate;
+                    Drawing.OnDraw += Drawing_OnDraw;
                     Drawing.OnEndScene += Drawing_OnEndScene;
                     Drawing.OnPreReset += Drawing_OnPreReset;
                     Drawing.OnPostReset += Drawing_OnPostReset;
@@ -99,6 +111,11 @@ namespace UniversalMinimapHack
                 Console.WriteLine("[ERROR] "+e.ToString());
                 Print("[ERROR] " + e.ToString());
             }
+        }
+
+        private void Drawing_OnDraw(EventArgs args)
+        {
+            
         }
 
         private void Drawing_OnPostReset(EventArgs args)
@@ -121,6 +138,15 @@ namespace UniversalMinimapHack
         {
             foreach (Position pos in _positions)
             {
+                if (!pos.Hero.IsVisible)
+                {
+                    float radius = Math.Abs(pos.LastLocation.X - pos.PredictedLocation.X);
+                    if (radius < SsCircleSize.GetValue<Slider>().Value && SsCircle.GetValue<bool>())
+                    {
+                        Utility.DrawCircle(pos.Hero.ServerPosition, radius, SsCircleColor.GetValue<System.Drawing.Color>(), 1, 30, true);
+                    }
+                    
+                }
                 if (pos.Text.Visible)
                 {
                     pos.Text.OnEndScene();
@@ -135,7 +161,13 @@ namespace UniversalMinimapHack
                 if (pos.Hero.ServerPosition != pos.LastLocation)
                 {
                     pos.LastLocation = pos.Hero.ServerPosition;
+                    pos.PredictedLocation = pos.Hero.ServerPosition;
                     pos.LastSeen = Game.ClockTime;
+                }
+
+                if (!pos.Hero.IsVisible)
+                {
+                    pos.PredictedLocation = new Vector3(pos.Hero.ServerPosition.X + ((Game.ClockTime - pos.LastSeen) * pos.Hero.MoveSpeed), pos.Hero.ServerPosition.Y, pos.Hero.ServerPosition.Z);
                 }
 
                 if (pos.Hero.IsVisible && !pos.Hero.IsDead)
@@ -292,6 +324,8 @@ namespace UniversalMinimapHack
         public MenuItem SsTimerMin { get; set; }
 
         public MenuItem SsTimerMinPing { get; set; }
+
+        public MenuItem SsCircleSize { get; set; }
     }
 
 
@@ -301,11 +335,15 @@ namespace UniversalMinimapHack
 
         public Render.Sprite Image { get; set; }
         public Render.Text Text { get; set; }
+        public Render.Circle Circle { get; set; }
         public Obj_AI_Hero Hero { get; set; }
+
         public float LastSeen { get; set; }
         public Vector3 LastLocation { get; set; }
-        public Vector3 LastLocationVisible { get; set; }
+
         public bool Pinged { get; set; }
+
+        public Vector3 PredictedLocation { get; set; }
 
         public Position(Obj_AI_Hero hero, Bitmap bmp, float scale)
         {
@@ -324,7 +362,7 @@ namespace UniversalMinimapHack
             Image.Add(_layer);
             LastSeen = 0;
             LastLocation = hero.ServerPosition;
-            LastLocationVisible = hero.ServerPosition;
+            PredictedLocation = hero.ServerPosition;
 
             Text = new Render.Text(0, 0, "", Program.GetInstance().SsTimerSize.GetValue<Slider>().Value,
                 SharpDX.Color.White)
@@ -344,6 +382,7 @@ namespace UniversalMinimapHack
                 Centered = true
             };
             Text.Add(_layer);
+            
             _layer++;
         }
 
