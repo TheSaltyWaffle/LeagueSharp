@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalWave", "UniversalW
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalMinimapHack", "UniversalMinimapHack\UniversalMinimapHack.csproj", "{7CF56175-FA98-4FCB-A926-4E5EEFD3B301}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalLantern", "UniversalLantern\UniversalLantern.csproj", "{4FE39524-754D-46E6-9F25-A5B5FEE19244}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{7CF56175-FA98-4FCB-A926-4E5EEFD3B301}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CF56175-FA98-4FCB-A926-4E5EEFD3B301}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CF56175-FA98-4FCB-A926-4E5EEFD3B301}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FE39524-754D-46E6-9F25-A5B5FEE19244}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FE39524-754D-46E6-9F25-A5B5FEE19244}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FE39524-754D-46E6-9F25-A5B5FEE19244}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FE39524-754D-46E6-9F25-A5B5FEE19244}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

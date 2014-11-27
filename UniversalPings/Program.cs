@@ -100,7 +100,12 @@ namespace UniversalPings
                 if (args.PacketData[0] == Packet.S2C.Ping.Header)
                 {
                     Packet.S2C.Ping.Struct decoded = Packet.S2C.Ping.Decoded(args.PacketData);
-                    Obj_AI_Hero src = ObjectManager.GetUnitByNetworkId<Obj_AI_Hero>(decoded.SourceNetworkId);
+                    GameObject srcObject = ObjectManager.GetUnitByNetworkId<GameObject>(decoded.SourceNetworkId);
+                    Obj_AI_Hero src = srcObject as Obj_AI_Hero;
+                    if (src == null)
+                    {
+                        return;
+                    }
                     MenuItem blockItem = _menu.Item(src.Name);
                     if (blockItem != null && blockItem.GetValue<bool>())
                     {
