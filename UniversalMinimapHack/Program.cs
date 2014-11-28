@@ -81,30 +81,32 @@ namespace UniversalMinimapHack
                 menu.AddSubMenu(ssMenu);
                 menu.AddSubMenu(ssCircleMenu);
                 menu.AddToMainMenu();
-
-                int attempt = 0;
-                _version = GameVersion();
-                while (string.IsNullOrEmpty(_version) && attempt < 5)
+                
+                Task.Factory.StartNew(() =>
                 {
+                    var attempt = 0;
                     _version = GameVersion();
-                    attempt++;
-                }
+                    while (string.IsNullOrEmpty(_version) && attempt < 5)
+                    {
+                        _version = GameVersion();
+                        attempt++;
+                    }
 
-
-                if (!string.IsNullOrEmpty(_version))
-                {
-                    LoadImages();
-                    Print("Loaded!");
-                    Game.OnGameUpdate += Game_OnGameUpdate;
-                    Drawing.OnDraw += Drawing_OnDraw;
-                    Drawing.OnEndScene += Drawing_OnEndScene;
-                    Drawing.OnPreReset += Drawing_OnPreReset;
-                    Drawing.OnPostReset += Drawing_OnPostReset;
-                }
-                else
-                {
-                    Print("Failed to load ddragon version after " + attempt + 1 + " attempts!");
-                }
+                    if (!string.IsNullOrEmpty(_version))
+                    {
+                        LoadImages();
+                        Print("Loaded!");
+                        Game.OnGameUpdate += Game_OnGameUpdate;
+                        Drawing.OnDraw += Drawing_OnDraw;
+                        Drawing.OnEndScene += Drawing_OnEndScene;
+                        Drawing.OnPreReset += Drawing_OnPreReset;
+                        Drawing.OnPostReset += Drawing_OnPostReset;
+                    }
+                    else
+                    {
+                        Print("Failed to load ddragon version after " + attempt + 1 + " attempts!");
+                    }
+                });
             }
             catch (Exception e)
             {
