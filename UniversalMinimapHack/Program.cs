@@ -95,7 +95,6 @@ namespace UniversalMinimapHack
                     if (!string.IsNullOrEmpty(_version))
                     {
                         LoadImages();
-                        Print("Loaded!");
                         Game.OnGameUpdate += Game_OnGameUpdate;
                         Drawing.OnDraw += Drawing_OnDraw;
                         Drawing.OnEndScene += Drawing_OnEndScene;
