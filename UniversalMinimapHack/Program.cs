@@ -72,8 +72,8 @@ namespace UniversalMinimapHack
                 ssMenu.AddItem(new MenuItem("2", "[Customize]"));
                 ssMenu.AddItem(SsTimerSize);
                 ssMenu.AddItem(SsTimerOffset);
-                Menu ssCircleMenu = new Menu("SS Circles","ccCircles");
-                SsCircle = new MenuItem("ssCircle","Enable").SetValue(true);
+                Menu ssCircleMenu = new Menu("SS Circles", "ccCircles");
+                SsCircle = new MenuItem("ssCircle", "Enable").SetValue(true);
                 SsCircleSize = new MenuItem("ssCircleSize", "Max Circle Size").SetValue(new Slider(7000, 500, 15000));
                 SsCircleColor = new MenuItem("ssCircleColor", "Circle color").SetValue(System.Drawing.Color.Green);
                 ssCircleMenu.AddItem(SsCircle);
@@ -82,43 +82,42 @@ namespace UniversalMinimapHack
                 menu.AddSubMenu(ssMenu);
                 menu.AddSubMenu(ssCircleMenu);
                 menu.AddToMainMenu();
-                
-                Task.Factory.StartNew(() =>
-                {
-                    var attempt = 0;
-                    _version = GameVersion();
-                    while (string.IsNullOrEmpty(_version) && attempt < 5)
-                    {
-                        _version = GameVersion();
-                        attempt++;
-                    }
 
-                    if (!string.IsNullOrEmpty(_version))
-                    {
-                        LoadImages();
-                        Print("Loaded!");
-                        Game.OnGameUpdate += Game_OnGameUpdate;
-                        Drawing.OnDraw += Drawing_OnDraw;
-                        Drawing.OnEndScene += Drawing_OnEndScene;
-                        Drawing.OnPreReset += Drawing_OnPreReset;
-                        Drawing.OnPostReset += Drawing_OnPostReset;
-                    }
-                    else
-                    {
-                        Print("Failed to load ddragon version after " + attempt + 1 + " attempts!");
-                    }
-                });
+
+                var attempt = 0;
+                _version = GameVersion();
+                while (string.IsNullOrEmpty(_version) && attempt < 5)
+                {
+                    _version = GameVersion();
+                    attempt++;
+                }
+
+                if (!string.IsNullOrEmpty(_version))
+                {
+                    LoadImages();
+                    Print("Loaded!");
+                    Game.OnGameUpdate += Game_OnGameUpdate;
+                    Drawing.OnDraw += Drawing_OnDraw;
+                    Drawing.OnEndScene += Drawing_OnEndScene;
+                    Drawing.OnPreReset += Drawing_OnPreReset;
+                    Drawing.OnPostReset += Drawing_OnPostReset;
+                }
+                else
+                {
+                    Print("Failed to load ddragon version after " + attempt + 1 + " attempts!");
+                }
+
             }
             catch (Exception e)
             {
-                Console.WriteLine("[ERROR] "+e.ToString());
+                Console.WriteLine("[ERROR] " + e.ToString());
                 Print("[ERROR] " + e.ToString());
             }
         }
 
         private void Drawing_OnDraw(EventArgs args)
         {
-            
+
         }
 
         private void Drawing_OnPostReset(EventArgs args)
@@ -148,7 +147,7 @@ namespace UniversalMinimapHack
                     {
                         Utility.DrawCircle(pos.Hero.ServerPosition, radius, SsCircleColor.GetValue<System.Drawing.Color>(), 1, 30, true);
                     }
-                    
+
                 }
                 if (pos.Text.Visible)
                 {
@@ -385,7 +384,7 @@ namespace UniversalMinimapHack
                 Centered = true
             };
             Text.Add(_layer);
-            
+
             _layer++;
         }
 
