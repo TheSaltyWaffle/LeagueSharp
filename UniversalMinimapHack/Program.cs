@@ -160,7 +160,7 @@ namespace UniversalMinimapHack
         {
             foreach (Position pos in _positions)
             {
-                if (pos.Hero.ServerPosition != pos.LastLocation)
+                if (pos.Hero.ServerPosition != pos.LastLocation || pos.Hero.IsDead)
                 {
                     pos.LastLocation = pos.Hero.ServerPosition;
                     pos.PredictedLocation = pos.Hero.ServerPosition;
@@ -353,7 +353,7 @@ namespace UniversalMinimapHack
             Image = new Render.Sprite(bmp, new Vector2(0, 0));
             Image.GrayScale();
             Image.Scale = new Vector2(scale, scale);
-            Image.VisibleCondition = sender => !hero.IsVisible;
+            Image.VisibleCondition = sender => !hero.IsVisible && !hero.IsDead;
             Image.PositionUpdate = delegate
             {
                 Vector2 v2 = Drawing.WorldToMinimap(hero.ServerPosition);
