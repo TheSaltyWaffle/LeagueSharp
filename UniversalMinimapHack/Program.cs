@@ -160,7 +160,7 @@ namespace UniversalMinimapHack
         {
             foreach (Position pos in _positions)
             {
-                if (pos.Hero.ServerPosition != pos.LastLocation || pos.Hero.IsDead)
+                if (pos.Hero.ServerPosition != pos.LastLocation)
                 {
                     pos.LastLocation = pos.Hero.ServerPosition;
                     pos.PredictedLocation = pos.Hero.ServerPosition;
@@ -371,7 +371,7 @@ namespace UniversalMinimapHack
             {
                 VisibleCondition =
                     sender =>
-                        !hero.IsVisible && Program.GetInstance().SsTimerEnabler.GetValue<bool>() && LastSeen > 20f &&
+                        !hero.IsVisible && !Hero.IsDead && Program.GetInstance().SsTimerEnabler.GetValue<bool>() && LastSeen > 20f &&
                         Program.GetInstance().SsTimerMin.GetValue<Slider>().Value <= Game.ClockTime - LastSeen,
                 PositionUpdate = delegate
                 {
