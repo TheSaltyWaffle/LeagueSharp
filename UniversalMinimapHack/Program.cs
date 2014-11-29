@@ -175,6 +175,7 @@ namespace UniversalMinimapHack
                 if (pos.Hero.IsVisible && !pos.Hero.IsDead)
                 {
                     pos.Pinged = false;
+                    pos.LastSeen = Game.ClockTime;
                 }
 
 
