@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Script.Serialization;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -179,7 +180,7 @@ namespace UniversalMinimapHack
                 }
 
 
-                if (pos.LastSeen != 0f && _ssFallbackPing.GetValue<bool>() && !pos.Hero.IsVisible)
+                if (pos.LastSeen >  0f && _ssFallbackPing.GetValue<bool>() && !pos.Hero.IsVisible)
                 {
                     if (Game.ClockTime - pos.LastSeen >= SsTimerMinPing.GetValue<Slider>().Value && !pos.Pinged)
                     {
@@ -250,10 +251,19 @@ namespace UniversalMinimapHack
             WebRequest request =
                 WebRequest.Create("http://ddragon.leagueoflegends.com/cdn/" + _version + "/img/champion/" + champName +
                                   ".png");
-            Stream responseStream;
-            using (WebResponse response = request.GetResponse())
-            using (responseStream = response.GetResponseStream())
-                return responseStream != null ? new Bitmap(responseStream) : null;
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            {
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    return null;
+                }
+                Stream responseStream;
+                using (responseStream = response.GetResponseStream())
+                {
+                    return responseStream != null ? new Bitmap(responseStream) : null;
+                }
+
+            }
         }
 
         public Bitmap CreateFinalImage(Bitmap srcBitmap, int circleUpperLeftX, int circleUpperLeftY, int circleDiameter)
