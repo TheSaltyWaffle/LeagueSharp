@@ -260,7 +260,7 @@ namespace UniversalMinimapHack
                 Stream responseStream;
                 using (responseStream = response.GetResponseStream())
                 {
-                    return responseStream != null ? new Bitmap(responseStream) : null;
+                    return responseStream != null && responseStream != Stream.Null ? new Bitmap(responseStream) : null;
                 }
 
             }
