@@ -5,15 +5,13 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalLeveler", "UniversalLeveler\UniversalLeveler.csproj", "{93D6E49E-8128-48FF-9329-B445BC4C59F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecallTracker", "RecallTracker\RecallTracker.csproj", "{1A2900AB-B2FF-4E0E-B316-2BF477D3AA04}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalPings", "UniversalPings\UniversalPings.csproj", "{B4EE9799-6C72-4089-958D-77AB31772A4B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalWave", "UniversalWave\UniversalWave.csproj", "{50729CEF-1355-440F-8376-207CFF222A3F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalMinimapHack", "UniversalMinimapHack\UniversalMinimapHack.csproj", "{7CF56175-FA98-4FCB-A926-4E5EEFD3B301}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalLantern", "UniversalLantern\UniversalLantern.csproj", "{4FE39524-754D-46E6-9F25-A5B5FEE19244}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UniversalRecallTracker", "UniversalRecallTracker\UniversalRecallTracker.csproj", "{D14C2C2B-3FDC-4BA8-9236-63F425C91449}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +23,6 @@ Global
 		{93D6E49E-8128-48FF-9329-B445BC4C59F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93D6E49E-8128-48FF-9329-B445BC4C59F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93D6E49E-8128-48FF-9329-B445BC4C59F9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1A2900AB-B2FF-4E0E-B316-2BF477D3AA04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1A2900AB-B2FF-4E0E-B316-2BF477D3AA04}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1A2900AB-B2FF-4E0E-B316-2BF477D3AA04}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1A2900AB-B2FF-4E0E-B316-2BF477D3AA04}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B4EE9799-6C72-4089-958D-77AB31772A4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B4EE9799-6C72-4089-958D-77AB31772A4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4EE9799-6C72-4089-958D-77AB31772A4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -41,10 +35,10 @@ Global
 		{7CF56175-FA98-4FCB-A926-4E5EEFD3B301}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CF56175-FA98-4FCB-A926-4E5EEFD3B301}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CF56175-FA98-4FCB-A926-4E5EEFD3B301}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4FE39524-754D-46E6-9F25-A5B5FEE19244}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4FE39524-754D-46E6-9F25-A5B5FEE19244}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4FE39524-754D-46E6-9F25-A5B5FEE19244}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4FE39524-754D-46E6-9F25-A5B5FEE19244}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D14C2C2B-3FDC-4BA8-9236-63F425C91449}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D14C2C2B-3FDC-4BA8-9236-63F425C91449}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D14C2C2B-3FDC-4BA8-9236-63F425C91449}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D14C2C2B-3FDC-4BA8-9236-63F425C91449}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

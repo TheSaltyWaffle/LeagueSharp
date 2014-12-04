@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("RecallTracker")]
+[assembly: AssemblyTitle("UniversalRecallTracker")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("RecallTracker")]
+[assembly: AssemblyProduct("UniversalRecallTracker")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("9e250fb7-0848-4b3b-bc8c-3f1304f407c0")]
+[assembly: Guid("d62883a7-e0ac-4c8c-9ad0-59d547bcb76b")]
 
 // Version information for an assembly consists of the following four values:
 //
