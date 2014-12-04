@@ -81,7 +81,8 @@ namespace UniversalLeveler
 
         private static int TotalLeveled()
         {
-            return new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }.Sum(s => ObjectManager.Player.Spellbook.GetSpell(s).Level);
+            return
+                new[] {SpellSlot.Q, SpellSlot.W, SpellSlot.E}.Sum(s => ObjectManager.Player.Spellbook.GetSpell(s).Level);
         }
 
         private static void OnGameLoad(EventArgs args)
@@ -100,7 +101,7 @@ namespace UniversalLeveler
                 _menu.AddSubMenu(subMenu);
             }
 
-            _activate = new MenuItem("activate", "Level to start?").SetValue(new StringList(new[] { "2", "3" }));
+            _activate = new MenuItem("activate", "Level to start?").SetValue(new StringList(new[] {"2", "3"}));
             _menu.AddItem(_activate);
             _menu.AddToMainMenu();
 
@@ -152,11 +153,11 @@ namespace UniversalLeveler
 
         private static void menuItem_ValueChanged(object sender, OnValueChangeEventArgs e)
         {
-            int oldValue = _menuMap[((MenuItem)sender)];
+            int oldValue = _menuMap[((MenuItem) sender)];
             int newValue = e.GetNewValue<Slider>().Value;
             if (oldValue != newValue)
             {
-                _menuMap[((MenuItem)sender)] = newValue;
+                _menuMap[((MenuItem) sender)] = newValue;
                 ParseMenu();
             }
         }
