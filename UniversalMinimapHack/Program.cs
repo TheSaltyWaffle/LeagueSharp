@@ -23,8 +23,8 @@ namespace UniversalMinimapHack
         private readonly IList<Position> _positions = new List<Position>();
         private MenuItem _slider;
         private MenuItem _ssFallbackPing;
-        private MenuItem SsCircle;
-        private MenuItem SsCircleColor;
+        private MenuItem _ssCircle;
+        private MenuItem _ssCircleColor;
         public MenuItem SsTimerEnabler { get; set; }
 
         private static void Main(string[] args)
@@ -74,12 +74,12 @@ namespace UniversalMinimapHack
                 ssMenu.AddItem(SsTimerSize);
                 ssMenu.AddItem(SsTimerOffset);
                 Menu ssCircleMenu = new Menu("SS Circles", "ccCircles");
-                SsCircle = new MenuItem("ssCircle", "Enable").SetValue(true);
+                _ssCircle = new MenuItem("ssCircle", "Enable").SetValue(true);
                 SsCircleSize = new MenuItem("ssCircleSize", "Max Circle Size").SetValue(new Slider(7000, 500, 15000));
-                SsCircleColor = new MenuItem("ssCircleColor", "Circle color").SetValue(System.Drawing.Color.Green);
-                ssCircleMenu.AddItem(SsCircle);
+                _ssCircleColor = new MenuItem("ssCircleColor", "Circle color").SetValue(System.Drawing.Color.Green);
+                ssCircleMenu.AddItem(_ssCircle);
                 ssCircleMenu.AddItem(SsCircleSize);
-                ssCircleMenu.AddItem(SsCircleColor);
+                ssCircleMenu.AddItem(_ssCircleColor);
                 menu.AddSubMenu(ssMenu);
                 menu.AddSubMenu(ssCircleMenu);
                 menu.AddToMainMenu();
@@ -144,9 +144,9 @@ namespace UniversalMinimapHack
                 if (!pos.Hero.IsVisible)
                 {
                     float radius = Math.Abs(pos.LastLocation.X - pos.PredictedLocation.X);
-                    if (radius < SsCircleSize.GetValue<Slider>().Value && SsCircle.GetValue<bool>())
+                    if (radius < SsCircleSize.GetValue<Slider>().Value && _ssCircle.GetValue<bool>())
                     {
-                        Utility.DrawCircle(pos.Hero.ServerPosition, radius, SsCircleColor.GetValue<System.Drawing.Color>(), 1, 30, true);
+                        Utility.DrawCircle(pos.LastLocation, radius, _ssCircleColor.GetValue<System.Drawing.Color>(), 1, 30, true);
                     }
 
                 }
@@ -161,16 +161,16 @@ namespace UniversalMinimapHack
         {
             foreach (Position pos in _positions)
             {
-                if (pos.Hero.ServerPosition != pos.LastLocation)
+                if (pos.Hero.ServerPosition != pos.LastLocation && pos.Hero.ServerPosition != pos.BeforeRecallLocation)
                 {
                     pos.LastLocation = pos.Hero.ServerPosition;
                     pos.PredictedLocation = pos.Hero.ServerPosition;
                     pos.LastSeen = Game.ClockTime;
                 }
 
-                if (!pos.Hero.IsVisible)
+                if (!pos.Hero.IsVisible && pos.RecallStatus != Packet.S2C.Recall.RecallStatus.RecallStarted)
                 {
-                    pos.PredictedLocation = new Vector3(pos.Hero.ServerPosition.X + ((Game.ClockTime - pos.LastSeen) * pos.Hero.MoveSpeed), pos.Hero.ServerPosition.Y, pos.Hero.ServerPosition.Z);
+                    pos.PredictedLocation = new Vector3(pos.LastLocation.X + ((Game.ClockTime - pos.LastSeen) * pos.Hero.MoveSpeed), pos.LastLocation.Y, pos.LastLocation.Z);
                 }
 
                 if (pos.Hero.IsVisible && !pos.Hero.IsDead)
@@ -350,13 +350,15 @@ namespace UniversalMinimapHack
         public Render.Text Text { get; set; }
         public Render.Circle Circle { get; set; }
         public Obj_AI_Hero Hero { get; set; }
+        public Packet.S2C.Recall.RecallStatus RecallStatus { get; set; }
 
         public float LastSeen { get; set; }
         public Vector3 LastLocation { get; set; }
-
+        public Vector3 PredictedLocation { get; set; }
+        public Vector3 BeforeRecallLocation { get; set; }
         public bool Pinged { get; set; }
 
-        public Vector3 PredictedLocation { get; set; }
+
 
         public Position(Obj_AI_Hero hero, Bitmap bmp, float scale)
         {
@@ -367,7 +369,7 @@ namespace UniversalMinimapHack
             Image.VisibleCondition = sender => !hero.IsVisible && !hero.IsDead;
             Image.PositionUpdate = delegate
             {
-                Vector2 v2 = Drawing.WorldToMinimap(hero.ServerPosition);
+                Vector2 v2 = Drawing.WorldToMinimap(LastLocation);
                 v2.X -= Image.Width / 2f;
                 v2.Y -= Image.Height / 2f;
                 return v2;
@@ -376,6 +378,7 @@ namespace UniversalMinimapHack
             LastSeen = 0;
             LastLocation = hero.ServerPosition;
             PredictedLocation = hero.ServerPosition;
+            BeforeRecallLocation = hero.ServerPosition;
 
             Text = new Render.Text(0, 0, "", Program.GetInstance().SsTimerSize.GetValue<Slider>().Value,
                 SharpDX.Color.White)
@@ -386,7 +389,7 @@ namespace UniversalMinimapHack
                         Program.GetInstance().SsTimerMin.GetValue<Slider>().Value <= Game.ClockTime - LastSeen,
                 PositionUpdate = delegate
                 {
-                    Vector2 v2 = Drawing.WorldToMinimap(hero.ServerPosition);
+                    Vector2 v2 = Drawing.WorldToMinimap(LastLocation);
                     v2.Y += Program.GetInstance().SsTimerOffset.GetValue<Slider>().Value;
                     return v2;
                 },
@@ -397,6 +400,32 @@ namespace UniversalMinimapHack
             Text.Add(_layer);
 
             _layer++;
+
+            Game.OnGameProcessPacket += Game_OnGameProcessPacket;
+        }
+
+        private void Game_OnGameProcessPacket(GamePacketEventArgs args)
+        {
+            if (args.PacketData[0] == Packet.S2C.Recall.Header)
+            {
+                Packet.S2C.Recall.Struct decoded = Packet.S2C.Recall.Decoded(args.PacketData);
+                if (decoded.UnitNetworkId == Hero.NetworkId)
+                {
+                    RecallStatus = decoded.Status;
+                    if (decoded.Status == Packet.S2C.Recall.RecallStatus.RecallFinished)
+                    {
+                        BeforeRecallLocation = Hero.ServerPosition;
+                        Vector3 enemyPos =
+                            ObjectManager.Get<GameObject>()
+                                .First(
+                                    x => x.Type == GameObjectType.obj_SpawnPoint && x.Team != ObjectManager.Player.Team)
+                                .Position;
+                        LastLocation = enemyPos;
+                        PredictedLocation = enemyPos;
+                        LastSeen = Game.ClockTime;
+                    }
+                }
+            }
         }
 
         private string Format(float f)
