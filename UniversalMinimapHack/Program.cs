@@ -141,7 +141,7 @@ namespace UniversalMinimapHack
         {
             foreach (Position pos in _positions)
             {
-                if (!pos.Hero.IsVisible)
+                if (!pos.Hero.IsVisible && !pos.Hero.IsDead)
                 {
                     float radius = Math.Abs(pos.LastLocation.X - pos.PredictedLocation.X);
                     if (radius < SsCircleSize.GetValue<Slider>().Value && _ssCircle.GetValue<bool>())
