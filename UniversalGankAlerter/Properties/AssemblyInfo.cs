@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("UniversalWave")]
+[assembly: AssemblyTitle("UniversalGankAlerter")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("UniversalWave")]
+[assembly: AssemblyProduct("UniversalGankAlerter")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f7e81295-79e5-4a9f-8cb0-26217a720087")]
+[assembly: Guid("80b9f99f-ecff-4271-9ac6-705e8fe0e34f")]
 
 // Version information for an assembly consists of the following four values:
 //

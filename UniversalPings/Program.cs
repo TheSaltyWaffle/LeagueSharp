@@ -155,7 +155,7 @@ namespace UniversalPings
         private void Print(string msg)
         {
             Game.PrintChat(
-                "<font color='#ff3232'>Universal</font><font color='#BABABA'>Pings:</font> <font color='#FFFFFF'>" + msg +
+                "<font color='#ff3232'>Universal</font><font color='#d4d4d4'>Pings:</font> <font color='#FFFFFF'>" + msg +
                 "</font>");
         }
     }

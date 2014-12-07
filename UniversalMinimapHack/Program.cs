@@ -301,7 +301,7 @@ namespace UniversalMinimapHack
         private void Print(string msg)
         {
             Game.PrintChat(
-                "<font color='#ff3232'>Universal</font><font color='#BABABA'>MinimapHack:</font> <font color='#FFFFFF'>" +
+                "<font color='#ff3232'>Universal</font><font color='#d4d4d4'>MinimapHack:</font> <font color='#FFFFFF'>" +
                 msg + "</font>");
         }
 
