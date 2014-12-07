@@ -93,6 +93,7 @@ namespace UniversalRecallTracker
                 RecallInfo recallInfo = new RecallInfo(hero, i++);
                 _recallInfo[hero] = recallInfo;
             }
+            //_recallInfo[ObjectManager.Player] = new RecallInfo(ObjectManager.Player,i);
             Print("Loaded!");
         }
 
@@ -195,26 +196,26 @@ namespace UniversalRecallTracker
 
         private void Game_OnGameProcessPacket(GamePacketEventArgs args)
         {
-            if (args.PacketData[0] == Packet.S2C.Recall.Header)
+            if (args.PacketData[0] == Packet.S2C.Teleport.Header)
             {
-                Packet.S2C.Recall.Struct decoded = Packet.S2C.Recall.Decoded(args.PacketData);
-                if (decoded.UnitNetworkId == _hero.NetworkId)
+                Packet.S2C.Teleport.Struct decoded = Packet.S2C.Teleport.Decoded(args.PacketData);
+                if (decoded.UnitNetworkId == _hero.NetworkId && decoded.Type == Packet.S2C.Teleport.Type.Recall)
                 {
                     switch (decoded.Status)
                     {
-                        case Packet.S2C.Recall.RecallStatus.RecallStarted:
+                        case Packet.S2C.Teleport.Status.Start:
                             _begin = Game.ClockTime;
                             _duration = decoded.Duration;
                             _active = true;
                             break;
-                        case Packet.S2C.Recall.RecallStatus.RecallFinished:
+                        case Packet.S2C.Teleport.Status.Finish:
                             Program.Instance().Notify(_hero.ChampionName + " has recalled.");
                             _active = false;
                             break;
-                        case Packet.S2C.Recall.RecallStatus.RecallAborted:
+                        case Packet.S2C.Teleport.Status.Abort:
                             _active = false;
                             break;
-                        case Packet.S2C.Recall.RecallStatus.Unknown:
+                        case Packet.S2C.Teleport.Status.Unknown:
                             Program.Instance().Notify(_hero.ChampionName + " is <font color='#ff3232'>unknown</font> (" + _hero.Spellbook.GetSpell(SpellSlot.Recall).Name + ")");
                             _active = false;
                             break;
