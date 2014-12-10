@@ -168,7 +168,7 @@ namespace UniversalMinimapHack
                     pos.LastSeen = Game.ClockTime;
                 }
 
-                if (!pos.Hero.IsVisible && pos.RecallStatus != Packet.S2C.Recall.RecallStatus.RecallStarted)
+                if (!pos.Hero.IsVisible && pos.RecallStatus != Packet.S2C.Teleport.Status.Start)
                 {
                     pos.PredictedLocation = new Vector3(pos.LastLocation.X + ((Game.ClockTime - pos.LastSeen) * pos.Hero.MoveSpeed), pos.LastLocation.Y, pos.LastLocation.Z);
                 }
@@ -350,7 +350,7 @@ namespace UniversalMinimapHack
         public Render.Text Text { get; set; }
         public Render.Circle Circle { get; set; }
         public Obj_AI_Hero Hero { get; set; }
-        public Packet.S2C.Recall.RecallStatus RecallStatus { get; set; }
+        public Packet.S2C.Teleport.Status RecallStatus { get; set; }
 
         public float LastSeen { get; set; }
         public Vector3 LastLocation { get; set; }
@@ -406,13 +406,13 @@ namespace UniversalMinimapHack
 
         private void Game_OnGameProcessPacket(GamePacketEventArgs args)
         {
-            if (args.PacketData[0] == Packet.S2C.Recall.Header)
+            if (args.PacketData[0] == Packet.S2C.Teleport.Header)
             {
-                Packet.S2C.Recall.Struct decoded = Packet.S2C.Recall.Decoded(args.PacketData);
-                if (decoded.UnitNetworkId == Hero.NetworkId)
+                Packet.S2C.Teleport.Struct decoded = Packet.S2C.Teleport.Decoded(args.PacketData);
+                if (decoded.UnitNetworkId == Hero.NetworkId && decoded.Type == Packet.S2C.Teleport.Type.Recall)
                 {
                     RecallStatus = decoded.Status;
-                    if (decoded.Status == Packet.S2C.Recall.RecallStatus.RecallFinished)
+                    if (decoded.Status == Packet.S2C.Teleport.Status.Finish)
                     {
                         BeforeRecallLocation = Hero.ServerPosition;
                         Vector3 enemyPos =

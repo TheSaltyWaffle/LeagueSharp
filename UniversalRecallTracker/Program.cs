@@ -149,7 +149,7 @@ namespace UniversalRecallTracker
             {
                 VisibleCondition = sender => _active,
                 PositionUpdate =
-                    delegate { return new Vector2(Program.Instance().X, Program.Instance().Y - (_index * TextFont.Description.Height)); }
+                    () => new Vector2(Program.Instance().X, Program.Instance().Y - (_index*TextFont.Description.Height))
             };
             _sprite.Add(0);
             Render.Text heroText = new Render.Text(0, 0,
