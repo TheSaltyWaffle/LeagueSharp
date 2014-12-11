@@ -13,6 +13,7 @@ namespace UniversalGankAlerter
         private static Program _instance;
 
         private readonly IDictionary<int, ChampionInfo> _championInfoById = new Dictionary<int, ChampionInfo>();
+        private Menu _menu;
         private MenuItem _sliderRadius;
         private PreviewCircle _previewCircle;
         private MenuItem _sliderCooldown;
@@ -64,7 +65,7 @@ namespace UniversalGankAlerter
         {
             _previewCircle = new PreviewCircle();
 
-            Menu menu = new Menu("Universal GankAlerter", "universalgankalerter", true);
+            _menu = new Menu("Universal GankAlerter", "universalgankalerter", true);
             _sliderRadius = new MenuItem("range", "Max Range").SetValue(new Slider(3000, 500, 5000));
             _sliderRadius.ValueChanged += SliderRadiusValueChanged;
             _sliderCooldown = new MenuItem("cooldown", "Cooldown (seconds)").SetValue(new Slider(10, 0, 60));
@@ -72,20 +73,21 @@ namespace UniversalGankAlerter
             _dangerPing = new MenuItem("dangerping", "Danger Ping (local)").SetValue(true);
             _junglerOnly = new MenuItem("jungleronly", "Warn Jungler Only").SetValue(false);
 
-            menu.AddItem(_sliderRadius);
-            menu.AddItem(_sliderCooldown);
-            menu.AddItem(_sliderLineDuration);
-            menu.AddItem(_dangerPing);
-            menu.AddItem(_junglerOnly);
-            menu.AddToMainMenu();
 
+            _menu.AddItem(_sliderRadius);
+            _menu.AddItem(_sliderCooldown);
+            _menu.AddItem(_sliderLineDuration);
+            _menu.AddItem(_dangerPing);
+            _menu.AddItem(_junglerOnly);
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>())
             {
                 if (hero.Team != ObjectManager.Player.Team)
                 {
                     _championInfoById[hero.NetworkId] = new ChampionInfo(hero);
+                    _menu.AddItem(new MenuItem(hero.ChampionName, hero.ChampionName).SetValue(true));
                 }
             }
+            _menu.AddToMainMenu();
             Print("Loaded!");
         }
 
@@ -99,6 +101,11 @@ namespace UniversalGankAlerter
             Game.PrintChat(
                 "<font color='#ff3232'>Universal</font><font color='#d4d4d4'>GankAlerter:</font> <font color='#FFFFFF'>" +
                 msg + "</font>");
+        }
+
+        public bool IsEnabled(Obj_AI_Hero hero)
+        {
+            return _menu.Item(hero.ChampionName).GetValue<bool>();
         }
     }
 
@@ -168,7 +175,7 @@ namespace UniversalGankAlerter
         private void ChampionInfo_OnEnterRange(object sender, EventArgs e)
         {
             if (Game.ClockTime - _lastEnter > Program.Instance().Cooldown &&
-                ((IsJungler(_hero) && Program.Instance().JunglerOnly) || !Program.Instance().JunglerOnly))
+                ((IsJungler(_hero) && Program.Instance().JunglerOnly) || !Program.Instance().JunglerOnly) && Program.Instance().IsEnabled(_hero))
             {
                 _lineStart = Game.ClockTime;
                 if (Program.Instance().DangerPing)
