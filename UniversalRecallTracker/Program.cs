@@ -175,6 +175,34 @@ namespace UniversalRecallTracker
             _countdownText.Add(1);
             Game.OnGameUpdate += Game_OnGameUpdate;
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
+            Obj_AI_Base.OnTeleport += Obj_AI_Base_OnTeleport;
+        }
+
+        private void Obj_AI_Base_OnTeleport(GameObject sender, GameObjectTeleportEventArgs args)
+        {
+            Packet.S2C.Teleport.Struct decoded = Packet.S2C.Teleport.Decoded(sender, args);
+            if (decoded.UnitNetworkId == _hero.NetworkId && decoded.Type == Packet.S2C.Teleport.Type.Recall)
+            {
+                switch (decoded.Status)
+                {
+                    case Packet.S2C.Teleport.Status.Start:
+                        _begin = Game.ClockTime;
+                        _duration = decoded.Duration;
+                        _active = true;
+                        break;
+                    case Packet.S2C.Teleport.Status.Finish:
+                        Program.Instance().Notify(_hero.ChampionName + " has recalled.");
+                        _active = false;
+                        break;
+                    case Packet.S2C.Teleport.Status.Abort:
+                        _active = false;
+                        break;
+                    case Packet.S2C.Teleport.Status.Unknown:
+                        Program.Instance().Notify(_hero.ChampionName + " is <font color='#ff3232'>unknown</font> (" + _hero.Spellbook.GetSpell(SpellSlot.Recall).Name + ")");
+                        _active = false;
+                        break;
+                }
+            }
         }
 
         private void Game_OnGameUpdate(EventArgs args)
@@ -194,34 +222,5 @@ namespace UniversalRecallTracker
             }
         }
 
-        private void Game_OnGameProcessPacket(GamePacketEventArgs args)
-        {
-            if (args.PacketData[0] == Packet.S2C.Teleport.Header)
-            {
-                Packet.S2C.Teleport.Struct decoded = Packet.S2C.Teleport.Decoded(args.PacketData);
-                if (decoded.UnitNetworkId == _hero.NetworkId && decoded.Type == Packet.S2C.Teleport.Type.Recall)
-                {
-                    switch (decoded.Status)
-                    {
-                        case Packet.S2C.Teleport.Status.Start:
-                            _begin = Game.ClockTime;
-                            _duration = decoded.Duration;
-                            _active = true;
-                            break;
-                        case Packet.S2C.Teleport.Status.Finish:
-                            Program.Instance().Notify(_hero.ChampionName + " has recalled.");
-                            _active = false;
-                            break;
-                        case Packet.S2C.Teleport.Status.Abort:
-                            _active = false;
-                            break;
-                        case Packet.S2C.Teleport.Status.Unknown:
-                            Program.Instance().Notify(_hero.ChampionName + " is <font color='#ff3232'>unknown</font> (" + _hero.Spellbook.GetSpell(SpellSlot.Recall).Name + ")");
-                            _active = false;
-                            break;
-                    }
-                }
-            }
-        }
     }
 }

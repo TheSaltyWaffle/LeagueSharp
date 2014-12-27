@@ -402,29 +402,26 @@ namespace UniversalMinimapHack
 
             _layer++;
 
-            Game.OnGameProcessPacket += Game_OnGameProcessPacket;
+            Obj_AI_Base.OnTeleport += Obj_AI_Base_OnTeleport;
         }
 
-        private void Game_OnGameProcessPacket(GamePacketEventArgs args)
+        private void Obj_AI_Base_OnTeleport(GameObject sender, GameObjectTeleportEventArgs args)
         {
-            if (args.PacketData[0] == Packet.S2C.Teleport.Header)
+            Packet.S2C.Teleport.Struct decoded = Packet.S2C.Teleport.Decoded(sender, args);
+            if (decoded.UnitNetworkId == Hero.NetworkId && decoded.Type == Packet.S2C.Teleport.Type.Recall)
             {
-                Packet.S2C.Teleport.Struct decoded = Packet.S2C.Teleport.Decoded(args.PacketData);
-                if (decoded.UnitNetworkId == Hero.NetworkId && decoded.Type == Packet.S2C.Teleport.Type.Recall)
+                RecallStatus = decoded.Status;
+                if (decoded.Status == Packet.S2C.Teleport.Status.Finish)
                 {
-                    RecallStatus = decoded.Status;
-                    if (decoded.Status == Packet.S2C.Teleport.Status.Finish)
-                    {
-                        BeforeRecallLocation = Hero.ServerPosition;
-                        Vector3 enemyPos =
-                            ObjectManager.Get<GameObject>()
-                                .First(
-                                    x => x.Type == GameObjectType.obj_SpawnPoint && x.Team != ObjectManager.Player.Team)
-                                .Position;
-                        LastLocation = enemyPos;
-                        PredictedLocation = enemyPos;
-                        LastSeen = Game.ClockTime;
-                    }
+                    BeforeRecallLocation = Hero.ServerPosition;
+                    Vector3 enemyPos =
+                        ObjectManager.Get<GameObject>()
+                            .First(
+                                x => x.Type == GameObjectType.obj_SpawnPoint && x.Team != ObjectManager.Player.Team)
+                            .Position;
+                    LastLocation = enemyPos;
+                    PredictedLocation = enemyPos;
+                    LastSeen = Game.ClockTime;
                 }
             }
         }
