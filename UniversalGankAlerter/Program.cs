@@ -163,7 +163,7 @@ namespace UniversalGankAlerter
                 VisibleCondition =
                     delegate
                     {
-                        return _hero.IsVisible && !_hero.IsDead &&
+                        return !_hero.IsDead &&
                                Game.ClockTime - _lineStart < Program.Instance().LineDuration;
                     }
             };
