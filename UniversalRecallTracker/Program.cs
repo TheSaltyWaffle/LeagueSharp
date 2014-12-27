@@ -10,8 +10,7 @@ namespace UniversalRecallTracker
 {
     public class Program
     {
-        private readonly IDictionary<Obj_AI_Hero, RecallInfo> _recallInfo =
-            new Dictionary<Obj_AI_Hero, RecallInfo>();
+        private readonly IDictionary<Obj_AI_Hero, RecallInfo> _recallInfo = new Dictionary<Obj_AI_Hero, RecallInfo>();
 
         private static Program _instance;
 
@@ -36,9 +35,15 @@ namespace UniversalRecallTracker
             get { return _textSize.GetValue<Slider>().Value; }
         }
 
-        public bool ChatWarning { get { return _chatWarning.GetValue<bool>(); } }
+        public bool ChatWarning
+        {
+            get { return _chatWarning.GetValue<bool>(); }
+        }
 
-        public bool ShowOnStart { get { return _showOnStart.GetValue<bool>(); } }
+        public bool ShowOnStart
+        {
+            get { return _showOnStart.GetValue<bool>(); }
+        }
 
         public static void Main(string[] args)
         {
@@ -66,11 +71,13 @@ namespace UniversalRecallTracker
             _x =
                 new MenuItem("x", "X").SetValue(
                     new Slider(
-                        (int)((Drawing.Direct3DDevice.Viewport.Width - Properties.Resources.RecallBar.Width) / 2f), 0,
+                        (int) ((Drawing.Direct3DDevice.Viewport.Width - Properties.Resources.RecallBar.Width) / 2f), 0,
                         Drawing.Direct3DDevice.Viewport.Width));
             _y =
-                new MenuItem("y", "Y").SetValue(new Slider((int)(Drawing.Direct3DDevice.Viewport.Height * 3f / 4f), 0,
-                    Drawing.Direct3DDevice.Viewport.Height));
+                new MenuItem("y", "Y").SetValue(
+                    new Slider(
+                        (int) (Drawing.Direct3DDevice.Viewport.Height * 3f / 4f), 0,
+                        Drawing.Direct3DDevice.Viewport.Height));
             _textSize = new MenuItem("textSize", "Text Size (F5 Reload)").SetValue(new Slider(15, 5, 50));
             _chatWarning = new MenuItem("chatWarning", "Chat Notification").SetValue(false);
             _showOnStart = new MenuItem("showOnStart", "Show on Start").SetValue(true);
@@ -83,12 +90,8 @@ namespace UniversalRecallTracker
             menu.AddToMainMenu();
 
             int i = 0;
-            foreach (
-                Obj_AI_Hero hero in
-                    ObjectManager.Get<Obj_AI_Hero>()
-                        .Where(
-                            hero =>
-                                hero.Team != ObjectManager.Player.Team))
+            foreach (Obj_AI_Hero hero in
+                ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.Team != ObjectManager.Player.Team))
             {
                 RecallInfo recallInfo = new RecallInfo(hero, i++);
                 _recallInfo[hero] = recallInfo;
@@ -104,7 +107,9 @@ namespace UniversalRecallTracker
             {
                 s = "<font color='#d8d8d8'>[" + Utils.FormatTime(Game.ClockTime) + "]</font> ";
             }
-            s += "<font color='#ff3232'>Universal</font><font color='#d4d4d4'>RecallTracker:</font> <font color='#FFFFFF'>" + msg + "</font>";
+            s +=
+                "<font color='#ff3232'>Universal</font><font color='#d4d4d4'>RecallTracker:</font> <font color='#FFFFFF'>" +
+                msg + "</font>";
             Game.PrintChat(s);
         }
 
@@ -149,11 +154,11 @@ namespace UniversalRecallTracker
             {
                 VisibleCondition = sender => _active,
                 PositionUpdate =
-                    () => new Vector2(Program.Instance().X, Program.Instance().Y - (_index*TextFont.Description.Height))
+                    () =>
+                        new Vector2(Program.Instance().X, Program.Instance().Y - (_index * TextFont.Description.Height))
             };
             _sprite.Add(0);
-            Render.Text heroText = new Render.Text(0, 0,
-                hero.ChampionName, TextFont.Description.Height, Color.White)
+            Render.Text heroText = new Render.Text(0, 0, hero.ChampionName, TextFont.Description.Height, Color.White)
             {
                 OutLined = true,
                 VisibleCondition = sender => _active,
@@ -165,13 +170,11 @@ namespace UniversalRecallTracker
             };
 
             heroText.Add(1);
-            _countdownText =
-                new Render.Text(0, 0, "",
-                    TextFont.Description.Height, Color.White)
-                {
-                    OutLined = true,
-                    VisibleCondition = sender => _active
-                };
+            _countdownText = new Render.Text(0, 0, "", TextFont.Description.Height, Color.White)
+            {
+                OutLined = true,
+                VisibleCondition = sender => _active
+            };
             _countdownText.Add(1);
             Game.OnGameUpdate += Game_OnGameUpdate;
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
@@ -198,7 +201,10 @@ namespace UniversalRecallTracker
                         _active = false;
                         break;
                     case Packet.S2C.Teleport.Status.Unknown:
-                        Program.Instance().Notify(_hero.ChampionName + " is <font color='#ff3232'>unknown</font> (" + _hero.Spellbook.GetSpell(SpellSlot.Recall).Name + ")");
+                        Program.Instance()
+                            .Notify(
+                                _hero.ChampionName + " is <font color='#ff3232'>unknown</font> (" +
+                                _hero.Spellbook.GetSpell(SpellSlot.Recall).Name + ")");
                         _active = false;
                         break;
                 }
@@ -211,16 +217,16 @@ namespace UniversalRecallTracker
             {
                 float percentage = (Game.ClockTime - _begin) / (_duration / 1000f);
                 int width =
-                    (int)(Properties.Resources.RecallBar.Width - (percentage * Properties.Resources.RecallBar.Width));
+                    (int) (Properties.Resources.RecallBar.Width - (percentage * Properties.Resources.RecallBar.Width));
                 _sprite.Crop(0, 0, width, Properties.Resources.RecallBar.Height);
                 _countdownText.X = _sprite.X + width + GapTextBar;
                 _countdownText.text =
-                    Math.Round((Decimal)((_duration / 1000f) - (Game.ClockTime - _begin)), 1,
-                        MidpointRounding.AwayFromZero) + "s";
+                    Math.Round(
+                        (Decimal) ((_duration / 1000f) - (Game.ClockTime - _begin)), 1, MidpointRounding.AwayFromZero) +
+                    "s";
                 Rectangle rect = TextFont.MeasureText(null, _countdownText.text, FontDrawFlags.Center);
                 _countdownText.Y = _sprite.Y - (rect.Height / 2);
             }
         }
-
     }
 }
