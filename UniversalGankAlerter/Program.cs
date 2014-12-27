@@ -216,7 +216,7 @@ namespace UniversalGankAlerter
 
         private bool IsJungler(Obj_AI_Hero hero)
         {
-            return hero.SummonerSpellbook.Spells.Any(spell => spell.Name.ToLower().Contains("smite"));
+            return hero.Spellbook.Spells.Any(spell => spell.Name.ToLower().Contains("smite"));
         }
     }
 }
