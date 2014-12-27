@@ -177,7 +177,6 @@ namespace UniversalRecallTracker
             };
             _countdownText.Add(1);
             Game.OnGameUpdate += Game_OnGameUpdate;
-            Game.OnGameProcessPacket += Game_OnGameProcessPacket;
             Obj_AI_Base.OnTeleport += Obj_AI_Base_OnTeleport;
         }
 
