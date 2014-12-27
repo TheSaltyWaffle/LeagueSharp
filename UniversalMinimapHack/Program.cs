@@ -66,11 +66,11 @@ namespace UniversalMinimapHack
                 menu.AddItem(IconOpacity);
                 Menu ssMenu = new Menu("SS Timer", "ssTimer");
                 ssMenu.AddItem(SsTimerEnabler);
-                ssMenu.AddItem(new MenuItem("1", "[Extra]"));
+                ssMenu.AddItem(new MenuItem("1", "--- [Extra] ---"));
                 ssMenu.AddItem(SsTimerMin);
                 ssMenu.AddItem(_ssFallbackPing);
                 ssMenu.AddItem(SsTimerMinPing);
-                ssMenu.AddItem(new MenuItem("2", "[Customize]"));
+                ssMenu.AddItem(new MenuItem("2", "--- [Customize] ---"));
                 ssMenu.AddItem(SsTimerSize);
                 ssMenu.AddItem(SsTimerOffset);
                 Menu ssCircleMenu = new Menu("SS Circles", "ccCircles");
@@ -362,6 +362,7 @@ namespace UniversalMinimapHack
 
         public Position(Obj_AI_Hero hero, Bitmap bmp, float scale)
         {
+            RecallStatus = Packet.S2C.Teleport.Status.Unknown;
             Hero = hero;
             Image = new Render.Sprite(bmp, new Vector2(0, 0));
             Image.GrayScale();
