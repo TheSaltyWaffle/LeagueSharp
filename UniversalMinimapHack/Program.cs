@@ -414,13 +414,11 @@ namespace UniversalMinimapHack
                 if (decoded.Status == Packet.S2C.Teleport.Status.Finish)
                 {
                     BeforeRecallLocation = Hero.ServerPosition;
-                    Vector3 enemyPos =
-                        ObjectManager.Get<GameObject>()
-                            .First(
-                                x => x.Type == GameObjectType.obj_SpawnPoint && x.Team != ObjectManager.Player.Team)
-                            .Position;
-                    LastLocation = enemyPos;
-                    PredictedLocation = enemyPos;
+                    var enemySpawn = ObjectManager.Get<Obj_SpawnPoint>().FirstOrDefault(x => x.IsEnemy);
+                    if (enemySpawn != null) {
+                        LastLocation = enemySpawn.Position;
+                        PredictedLocation = enemySpawn.Position;
+                    }
                     LastSeen = Game.ClockTime;
                 }
             }
