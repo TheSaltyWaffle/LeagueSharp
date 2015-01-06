@@ -8,19 +8,40 @@ namespace UniversalLeveler
 {
     internal static class Program
     {
-        private static readonly IDictionary<SpellSlot, int> SpellShots = new Dictionary<SpellSlot, int>
+        private static readonly IDictionary<SpellSlot, int> DefaultSpellSlotPriorities =
+            new Dictionary<SpellSlot, int>
+            {
+                { SpellSlot.Q, 2 },
+                { SpellSlot.W, 3 },
+                { SpellSlot.E, 4 },
+                { SpellSlot.R, 1 }
+            };
+
+        private static readonly IList<SpellSlot> SpellSlots = new List<SpellSlot>
         {
-            { SpellSlot.Q, 2 },
-            { SpellSlot.W, 3 },
-            { SpellSlot.E, 4 },
-            { SpellSlot.R, 1 }
+            SpellSlot.Q,
+            SpellSlot.W,
+            SpellSlot.E,
+            SpellSlot.R
         };
+
+        private static readonly IDictionary<string, ALevelStrategy> LevelStrategyByChampion =
+            new Dictionary<string, ALevelStrategy>
+            {
+                { "Jayce", new LevelOneUltiStrategy() },
+                { "Karma", new LevelOneUltiStrategy() },
+                { "Nidalee", new LevelOneUltiStrategy() },
+                { "Elise", new LevelOneUltiStrategy() },
+                { "Udyr", new UdyrStrategy() },
+            };
 
         private static Menu _menu;
         private static MenuItem _activate;
         private static SpellSlot[] _priority;
         private static IDictionary<MenuItem, int> _menuMap;
         private static bool _lastFormatCorrect = true;
+        private static int _level;
+        private static ALevelStrategy _levelStrategy;
 
         private static void Main(string[] args)
         {
@@ -29,76 +50,58 @@ namespace UniversalLeveler
 
         private static void UnitOnOnLevelUp(Obj_AI_Base sender, CustomEvents.Unit.OnLevelUpEventArgs args)
         {
-            if (!sender.IsValid || !sender.IsMe || _priority == null || TotalLeveled() == 0)
+            if (!sender.IsValid || !sender.IsMe || _priority == null ||
+                TotalLeveled() - _levelStrategy.LevelOneSkills == 0)
             {
                 return;
             }
 
-            for (int i = 0; i < args.RemainingPoints; i++)
+            foreach (SpellSlot spellSlot in _priority)
             {
-                if (args.NewLevel > 3)
+                if (ObjectManager.Player.Spellbook.GetSpell(spellSlot).Level == 0 &&
+                    args.NewLevel >= GetMinLevel(spellSlot) && args.NewLevel > _levelStrategy.MinimumLevel(spellSlot) &&
+                    _levelStrategy.CanLevel(args.NewLevel, spellSlot))
                 {
-                    if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level == 0 &&
-                        args.NewLevel >= GetMinLevel(SpellSlot.Q))
-                    {
-                        ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.Q);
-                    }
-                    if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Level == 0 &&
-                        args.NewLevel >= GetMinLevel(SpellSlot.W))
-                    {
-                        ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.W);
-                    }
-                    if (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E).Level == 0 &&
-                        args.NewLevel >= GetMinLevel(SpellSlot.E))
-                    {
-                        ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.E);
-                    }
-                }
-
-                if (args.NewLevel >= 6 && ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Level == 0 &&
-                    args.NewLevel >= GetMinLevel(SpellSlot.R))
-                {
-                    ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.R);
+                    Level(spellSlot);
+                    return;
                 }
             }
 
-            StringList sl = _activate.GetValue<StringList>();
+
+            var sl = _activate.GetValue<StringList>();
             if (args.NewLevel >= Int32.Parse(sl.SList[sl.SelectedIndex]))
             {
-                foreach (SpellSlot s in _priority)
+                SpellSlot spellSlot = _levelStrategy.GetSpellSlotToLevel(args.NewLevel, _priority);
+                if (spellSlot != SpellSlot.Unknown)
                 {
-                    for (int i = 0; i < args.RemainingPoints; i++)
-                    {
-                        if (((ObjectManager.Player.Spellbook.GetSpell(s).Level == 0 && args.NewLevel <= 3) ||
-                             args.NewLevel > 3) && args.NewLevel >= GetMinLevel(s))
-                        {
-                            ObjectManager.Player.Spellbook.LevelSpell(s);
-                        }
-                    }
+                    Level(spellSlot);
                 }
             }
         }
 
+        private static void Level(SpellSlot spellSlot)
+        {
+            ObjectManager.Player.Spellbook.LevelSpell(spellSlot);
+        }
+
         private static int TotalLeveled()
         {
-            return
-                new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }.Sum(
-                    s => ObjectManager.Player.Spellbook.GetSpell(s).Level);
+            return SpellSlots.Sum(s => ObjectManager.Player.Spellbook.GetSpell(s).Level);
         }
 
         private static void OnGameLoad(EventArgs args)
         {
             _menuMap = new Dictionary<MenuItem, int>();
             _menu = new Menu("Universal Leveler", "UniversalLeveler" + ObjectManager.Player.ChampionName, true);
-            foreach (KeyValuePair<SpellSlot, int> entry in SpellShots)
+            foreach (var entry in DefaultSpellSlotPriorities)
             {
                 MenuItem menuItem = MakeSlider(
-                    entry.Key.ToString(), entry.Key.ToString(), entry.Value, 1, SpellShots.Count);
+                    entry.Key.ToString(), entry.Key.ToString(), entry.Value, 1, DefaultSpellSlotPriorities.Count);
                 menuItem.ValueChanged += menuItem_ValueChanged;
                 _menu.AddItem(menuItem);
 
-                Menu subMenu = new Menu(entry.Key.ToString() + " Extra", entry.Key.ToString() + "extra");
-                subMenu.AddItem(MakeSlider(entry.Key.ToString() + "extra", "Level after X (inclusive) ?", 1, 1, 18));
+                var subMenu = new Menu(entry.Key + " Extra", entry.Key + "extra");
+                subMenu.AddItem(MakeSlider(entry.Key + "extra", "Level after X (inclusive) ?", 1, 1, 18));
                 _menu.AddSubMenu(subMenu);
             }
 
@@ -107,27 +110,32 @@ namespace UniversalLeveler
             _menu.AddToMainMenu();
 
 
-            foreach (KeyValuePair<SpellSlot, int> entry in SpellShots)
+            foreach (var entry in DefaultSpellSlotPriorities)
             {
                 MenuItem item = _menu.GetSlider(entry.Key.ToString());
                 _menuMap[item] = item.GetValue<Slider>().Value;
             }
 
             ParseMenu();
+            
+            _levelStrategy = new DefaultLevelStrategy();
+            if (LevelStrategyByChampion.ContainsKey(ObjectManager.Player.ChampionName))
+            {
+                _levelStrategy = LevelStrategyByChampion[ObjectManager.Player.ChampionName];
+            }
+            _level = ObjectManager.Player.Level;
 
             //CustomEvents.Unit.OnLevelUp += UnitOnOnLevelUp;
             Game.OnGameUpdate += GameOnOnGameUpdate; //Temp until levelup packet is fixed
             Print("Loaded!");
         }
 
-        private static int _level;
-
         private static void GameOnOnGameUpdate(EventArgs args)
         {
             int newLevel = ObjectManager.Player.Level;
             if (_level < newLevel)
             {
-                CustomEvents.Unit.OnLevelUpEventArgs levelupArgs = new CustomEvents.Unit.OnLevelUpEventArgs
+                var levelupArgs = new CustomEvents.Unit.OnLevelUpEventArgs
                 {
                     NewLevel = newLevel,
                     RemainingPoints = newLevel - _level
@@ -140,10 +148,10 @@ namespace UniversalLeveler
 
         private static void ParseMenu()
         {
-            bool[] indices = new bool[SpellShots.Count];
+            var indices = new bool[DefaultSpellSlotPriorities.Count];
             bool format = true;
-            _priority = new SpellSlot[SpellShots.Count];
-            foreach (KeyValuePair<SpellSlot, int> entry in SpellShots)
+            _priority = new SpellSlot[DefaultSpellSlotPriorities.Count];
+            foreach (var entry in DefaultSpellSlotPriorities)
             {
                 int index = _menuMap[_menu.GetSlider(entry.Key.ToString())] - 1;
                 if (indices[index])
@@ -191,7 +199,7 @@ namespace UniversalLeveler
 
         private static MenuItem MakeSlider(string name, string display, int value, int min, int max)
         {
-            MenuItem item = new MenuItem(name + ObjectManager.Player.ChampionName, display);
+            var item = new MenuItem(name + ObjectManager.Player.ChampionName, display);
             item.SetValue(new Slider(value, min, max));
             return item;
         }
@@ -201,9 +209,9 @@ namespace UniversalLeveler
             return menu.Item(name + ObjectManager.Player.ChampionName);
         }
 
-        private static int GetMinLevel(SpellSlot s)
+        public static int GetMinLevel(SpellSlot s)
         {
-            return _menu.SubMenu(s.ToString() + "extra").GetSlider(s.ToString() + "extra").GetValue<Slider>().Value;
+            return _menu.SubMenu(s + "extra").GetSlider(s + "extra").GetValue<Slider>().Value;
         }
     }
 }
