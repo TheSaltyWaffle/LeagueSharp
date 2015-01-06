@@ -42,6 +42,7 @@ namespace UniversalLeveler
         private static bool _lastFormatCorrect = true;
         private static int _level;
         private static ALevelStrategy _levelStrategy;
+        private static MenuItem _debug;
 
         private static void Main(string[] args)
         {
@@ -81,6 +82,10 @@ namespace UniversalLeveler
 
         private static void Level(SpellSlot spellSlot)
         {
+            if (_debug.GetValue<bool>())
+            {
+                Print("Leveling " + spellSlot);
+            }
             ObjectManager.Player.Spellbook.LevelSpell(spellSlot);
         }
 
@@ -106,7 +111,9 @@ namespace UniversalLeveler
             }
 
             _activate = new MenuItem("activate", "Level to start?").SetValue(new StringList(new[] { "2", "3" }));
+            _debug = new MenuItem("debug", "Chat Notification (local)").SetValue(false);
             _menu.AddItem(_activate);
+            _menu.AddItem(_debug);
             _menu.AddToMainMenu();
 
 
