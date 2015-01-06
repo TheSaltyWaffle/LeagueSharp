@@ -181,8 +181,7 @@ namespace UniversalGankAlerter
                 if (Program.Instance().DangerPing)
                 {
                     Packet.S2C.Ping.Encoded(new Packet.S2C.Ping.Struct(_hero.Position.X, _hero.Position.Y,
-                        _hero.NetworkId,
-                        ObjectManager.Player.NetworkId, Packet.PingType.Danger)).Process();
+                        0,0, Packet.PingType.Danger)).Process();
                 }
             }
             _lastEnter = Game.ClockTime;
