@@ -20,12 +20,17 @@ namespace UniversalLeveler
 
         public virtual bool CanLevel(int currentLevel, SpellSlot spellSlot)
         {
+            int spellLevel = ObjectManager.Player.Spellbook.GetSpell(spellSlot).Level;
+            if (spellLevel >= 5)
+            {
+                return false;
+            }
             int div = currentLevel / 2;
             if (((currentLevel ^ 2) >= 0) && (currentLevel % 2 != 0))
             {
                 div++;
             }
-            return ObjectManager.Player.Spellbook.GetSpell(spellSlot).Level < div;
+            return spellLevel < div;
         }
 
         protected bool CanLevelUlti(int currentLevel, int defaultLevel, SpellSlot spellSlot)
