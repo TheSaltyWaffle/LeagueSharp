@@ -1,26 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+using Color = SharpDX.Color;
 
 namespace UniversalMinimapHack
 {
     public class HeroTracker
     {
         public Render.Text Text;
-        public Obj_AI_Hero Hero { get; set; }
-        public Packet.S2C.Teleport.Status RecallStatus { get; set; }
-
-        public float LastSeen { get; set; }
-        public Vector3 LastLocation { get; set; }
-        public Vector3 PredictedLocation { get; set; }
-        public Vector3 BeforeRecallLocation { get; set; }
-        public bool Pinged { get; set; }
 
         public HeroTracker(Obj_AI_Hero hero, Bitmap bmp)
         {
@@ -28,7 +18,7 @@ namespace UniversalMinimapHack
 
             RecallStatus = Packet.S2C.Teleport.Status.Unknown;
             Hero = hero;
-            Render.Sprite image = new Render.Sprite(bmp, new Vector2(0, 0));
+            var image = new Render.Sprite(bmp, new Vector2(0, 0));
             image.GrayScale();
             image.Scale = new Vector2(MinimapHack.Instance().Menu.IconScale, MinimapHack.Instance().Menu.IconScale);
             image.VisibleCondition = sender => !hero.IsVisible && !hero.IsDead;
@@ -45,8 +35,7 @@ namespace UniversalMinimapHack
             PredictedLocation = hero.ServerPosition;
             BeforeRecallLocation = hero.ServerPosition;
 
-            Text = new Render.Text(0, 0, "", MinimapHack.Instance().Menu.SSTimerSize,
-                SharpDX.Color.White)
+            Text = new Render.Text(0, 0, "", MinimapHack.Instance().Menu.SSTimerSize, Color.White)
             {
                 VisibleCondition =
                     sender =>
@@ -69,6 +58,15 @@ namespace UniversalMinimapHack
             Drawing.OnEndScene += Drawing_OnEndScene;
         }
 
+        public Obj_AI_Hero Hero { get; set; }
+        public Packet.S2C.Teleport.Status RecallStatus { get; set; }
+
+        public float LastSeen { get; set; }
+        public Vector3 LastLocation { get; set; }
+        public Vector3 PredictedLocation { get; set; }
+        public Vector3 BeforeRecallLocation { get; set; }
+        public bool Pinged { get; set; }
+
         private void Drawing_OnEndScene(EventArgs args)
         {
             if (!Hero.IsVisible && !Hero.IsDead)
@@ -78,7 +76,6 @@ namespace UniversalMinimapHack
                 {
                     Utility.DrawCircle(LastLocation, radius, MinimapHack.Instance().Menu.SSCircleColor, 1, 30, true);
                 }
-
             }
             if (Text.Visible)
             {
@@ -97,7 +94,8 @@ namespace UniversalMinimapHack
 
             if (!Hero.IsVisible && RecallStatus != Packet.S2C.Teleport.Status.Start)
             {
-                PredictedLocation = new Vector3(LastLocation.X + ((Game.ClockTime - LastSeen) * Hero.MoveSpeed), LastLocation.Y, LastLocation.Z);
+                PredictedLocation = new Vector3(
+                    LastLocation.X + ((Game.ClockTime - LastSeen) * Hero.MoveSpeed), LastLocation.Y, LastLocation.Z);
             }
 
             if (Hero.IsVisible && !Hero.IsDead)
@@ -110,8 +108,10 @@ namespace UniversalMinimapHack
             {
                 if (Game.ClockTime - LastSeen >= MinimapHack.Instance().Menu.MinPing && !Pinged)
                 {
-                    Packet.S2C.Ping.Encoded(new Packet.S2C.Ping.Struct(LastLocation.X, LastLocation.Y, Hero.NetworkId,
-                        ObjectManager.Player.NetworkId, Packet.PingType.EnemyMissing)).Process();
+                    Packet.S2C.Ping.Encoded(
+                        new Packet.S2C.Ping.Struct(
+                            LastLocation.X, LastLocation.Y, Hero.NetworkId, ObjectManager.Player.NetworkId,
+                            Packet.PingType.EnemyMissing)).Process();
                     Pinged = true;
                 }
             }
@@ -126,7 +126,7 @@ namespace UniversalMinimapHack
                 if (decoded.Status == Packet.S2C.Teleport.Status.Finish)
                 {
                     BeforeRecallLocation = Hero.ServerPosition;
-                    var enemySpawn = ObjectManager.Get<Obj_SpawnPoint>().FirstOrDefault(x => x.IsEnemy);
+                    Obj_SpawnPoint enemySpawn = ObjectManager.Get<Obj_SpawnPoint>().FirstOrDefault(x => x.IsEnemy);
                     if (enemySpawn != null)
                     {
                         LastLocation = enemySpawn.Position;
