@@ -21,7 +21,6 @@ namespace UniversalMinimapHack
             string cachedPath = GetCachedPath(championName);
             if (File.Exists(cachedPath))
             {
-                Program.Print("Loading from cache");
                 return ChangeOpacity(new Bitmap(cachedPath));
             }
             Bitmap bitmap = Properties.Resources.ResourceManager.GetObject(championName + "_Square_0") as Bitmap ?? Properties.Resources.Nami_Square_0;
