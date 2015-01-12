@@ -1,6 +1,7 @@
 ﻿using System;
 using LeagueSharp;
 using LeagueSharp.Common;
+using UniversalMinimapHack.Properties;
 
 namespace UniversalMinimapHack
 {
@@ -13,6 +14,7 @@ namespace UniversalMinimapHack
 
         private static void Game_OnGameLoad(EventArgs args)
         {
+            Resources.ResourceManager.IgnoreCase = true;
             MinimapHack.Instance().Load();
             Print("Loaded!");
         }
