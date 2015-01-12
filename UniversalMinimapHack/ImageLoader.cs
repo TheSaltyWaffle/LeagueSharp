@@ -16,8 +16,11 @@ namespace UniversalMinimapHack
             {
                 return ChangeOpacity(new Bitmap(cachedPath));
             }
-            Bitmap bitmap = Resources.ResourceManager.GetObject(championName + "_Square_0") as Bitmap ??
-                            Resources.Nami_Square_0;
+            var bitmap = Resources.ResourceManager.GetObject(championName + "_Square_0") as Bitmap;
+            if (bitmap == null)
+            {
+                return ChangeOpacity(CreateFinalImage(Resources.Default));
+            }
             Bitmap finalBitmap = CreateFinalImage(bitmap);
             finalBitmap.Save(cachedPath);
             return ChangeOpacity(finalBitmap);

@@ -10,8 +10,6 @@ namespace UniversalMinimapHack
 {
     public class HeroTracker
     {
-        public Render.Text Text;
-
         public HeroTracker(Obj_AI_Hero hero, Bitmap bmp)
         {
             Hero = hero;
@@ -58,14 +56,14 @@ namespace UniversalMinimapHack
             Drawing.OnEndScene += Drawing_OnEndScene;
         }
 
-        public Obj_AI_Hero Hero { get; set; }
-        public Packet.S2C.Teleport.Status RecallStatus { get; set; }
-
-        public float LastSeen { get; set; }
-        public Vector3 LastLocation { get; set; }
-        public Vector3 PredictedLocation { get; set; }
-        public Vector3 BeforeRecallLocation { get; set; }
-        public bool Pinged { get; set; }
+        private Render.Text Text { get; set; }
+        private Obj_AI_Hero Hero { get; set; }
+        private Packet.S2C.Teleport.Status RecallStatus { get; set; }
+        private float LastSeen { get; set; }
+        private Vector3 LastLocation { get; set; }
+        private Vector3 PredictedLocation { get; set; }
+        private Vector3 BeforeRecallLocation { get; set; }
+        private bool Pinged { get; set; }
 
         private void Drawing_OnEndScene(EventArgs args)
         {
