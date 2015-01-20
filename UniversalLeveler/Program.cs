@@ -43,6 +43,7 @@ namespace UniversalLeveler
         private static int _level;
         private static ALevelStrategy _levelStrategy;
         private static MenuItem _debug;
+        private static MenuItem _delay;
 
         private static void Main(string[] args)
         {
@@ -86,7 +87,7 @@ namespace UniversalLeveler
             {
                 Print("Leveling " + spellSlot);
             }
-            ObjectManager.Player.Spellbook.LevelSpell(spellSlot);
+            Utility.DelayAction.Add(_delay.GetValue<Slider>().Value, () => ObjectManager.Player.Spellbook.LevelSpell(spellSlot));
         }
 
         private static int TotalLeveled()
@@ -112,8 +113,10 @@ namespace UniversalLeveler
 
             _activate = new MenuItem("activate", "Level to start?").SetValue(new StringList(new[] { "2", "3" }));
             _debug = new MenuItem("debug", "Chat Notification (local)").SetValue(false);
+            _delay = new MenuItem("delay", "LevelUp Delay (ms)").SetValue(new Slider(0, 0, 2000));
             _menu.AddItem(_activate);
             _menu.AddItem(_debug);
+            _menu.AddItem(_delay);
             _menu.AddToMainMenu();
 
 
