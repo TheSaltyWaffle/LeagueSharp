@@ -91,9 +91,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Default.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Aatrox_Square_0.png" />
   </ItemGroup>
   <ItemGroup>
@@ -143,6 +140,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Darius_Square_0.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Default.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Diana_Square_0.png" />
@@ -430,6 +430,12 @@
     <None Include="Resources\Vladimir_Square_0.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Voidgate_Square_0.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Voidspawn_Square_0.png" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Resources\Volibear_Square_0.png" />
   </ItemGroup>
   <ItemGroup>
@@ -461,12 +467,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Zyra_Square_0.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Voidgate_Square_0.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Voidspawn_Square_0.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
