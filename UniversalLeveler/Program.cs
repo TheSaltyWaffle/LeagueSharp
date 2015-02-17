@@ -111,7 +111,7 @@ namespace UniversalLeveler
                 _menu.AddSubMenu(subMenu);
             }
 
-            _activate = new MenuItem("activate", "Level to start?").SetValue(new StringList(new[] { "2", "3" }));
+            _activate = new MenuItem("activate", "Level to start?").SetValue(new StringList(new[] { "2", "3", "4" }));
             _debug = new MenuItem("debug", "Chat Notification (local)").SetValue(false);
             _delay = new MenuItem("delay", "LevelUp Delay (ms)").SetValue(new Slider(0, 0, 2000));
             _menu.AddItem(_activate);
