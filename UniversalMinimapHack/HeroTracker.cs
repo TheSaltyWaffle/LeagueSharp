@@ -52,7 +52,7 @@ namespace UniversalMinimapHack
             Text.Add(0);
 
             Obj_AI_Base.OnTeleport += Obj_AI_Base_OnTeleport;
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
             Drawing.OnEndScene += Drawing_OnEndScene;
         }
 

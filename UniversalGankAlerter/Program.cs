@@ -168,7 +168,7 @@ namespace UniversalGankAlerter
                     }
             };
             line.Add(0);
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
             OnEnterRange += ChampionInfo_OnEnterRange;
         }
 

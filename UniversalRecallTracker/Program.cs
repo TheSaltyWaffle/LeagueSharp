@@ -196,7 +196,7 @@ namespace UniversalRecallTracker
                 VisibleCondition = sender => _active
             };
             _countdownText.Add(1);
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
             Obj_AI_Base.OnTeleport += Obj_AI_Base_OnTeleport;
         }
 

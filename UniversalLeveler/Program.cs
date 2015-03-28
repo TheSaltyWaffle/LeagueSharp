@@ -136,11 +136,11 @@ namespace UniversalLeveler
             _level = ObjectManager.Player.Level;
 
             //CustomEvents.Unit.OnLevelUp += UnitOnOnLevelUp;
-            Game.OnGameUpdate += GameOnOnGameUpdate; //Temp until levelup packet is fixed
+            Game.OnUpdate += Game_OnUpdate;
             Print("Loaded!");
         }
 
-        private static void GameOnOnGameUpdate(EventArgs args)
+        private static void Game_OnUpdate(EventArgs args)
         {
             int newLevel = ObjectManager.Player.Level;
             if (_level < newLevel)
