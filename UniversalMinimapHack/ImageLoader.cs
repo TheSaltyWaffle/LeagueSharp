@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -34,7 +35,7 @@ namespace UniversalMinimapHack
 
         private static string GetCachedPath(string championName)
         {
-            string path = Path.GetTempPath() + "UniversalMinimapHackv2";
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UniversalMinimapHackCache");
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
