@@ -191,7 +191,7 @@ namespace UniversalGankAlerter
                         float dist = _hero.Distance(ObjectManager.Player.Position);
                         return Program.Instance().ShowChampionNames && !_hero.IsDead &&
                                Game.ClockTime - _lineStart < Program.Instance().LineDuration &&
-                               Render.OnScreen(Drawing.WorldToScreen(ObjectManager.Player.Position.Extend(_hero.Position, 300 + textoffset))) &&
+                               !Render.OnScreen(Drawing.WorldToScreen(_hero.Position)) &&
                                dist < Program.Instance().Radius &&
                                dist > 300 + textoffset; 
                     },
