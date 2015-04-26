@@ -100,12 +100,12 @@ namespace UniversalGankAlerter
                     if (hero.IsEnemy)
                     {
                         _championInfoById[hero.NetworkId] = new ChampionInfo(hero, false);
-                        _enemies.AddItem(new MenuItem(hero.ChampionName, hero.ChampionName).SetValue(true));
+                        _enemies.AddItem(new MenuItem("enemy"+hero.ChampionName, hero.ChampionName).SetValue(true));
                     }
                     else
                     {
                         _championInfoById[hero.NetworkId] = new ChampionInfo(hero, true);
-                        _allies.AddItem(new MenuItem(hero.ChampionName, hero.ChampionName).SetValue(false));
+                        _allies.AddItem(new MenuItem("ally" + hero.ChampionName, hero.ChampionName).SetValue(false));
                     }
                 }
             }
@@ -128,8 +128,8 @@ namespace UniversalGankAlerter
         public bool IsEnabled(Obj_AI_Hero hero)
         {
             return hero.IsEnemy
-                ? _enemies.Item(hero.ChampionName).GetValue<bool>()
-                : _allies.Item(hero.ChampionName).GetValue<bool>();
+                ? _enemies.Item("enemy" + hero.ChampionName).GetValue<bool>()
+                : _allies.Item("ally" + hero.ChampionName).GetValue<bool>();
         }
     }
 
