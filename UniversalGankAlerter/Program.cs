@@ -84,7 +84,7 @@ namespace UniversalGankAlerter
             _enemies = new Menu("Enemies", "enemies");
             _enemies.AddItem(_enemyJunglerOnly);
 
-            _allies = new Menu("Allies","allies");
+            _allies = new Menu("Allies", "allies");
             _allies.AddItem(_allyJunglerOnly);
 
             _menu.AddItem(_sliderRadius);
@@ -127,7 +127,9 @@ namespace UniversalGankAlerter
 
         public bool IsEnabled(Obj_AI_Hero hero)
         {
-            return hero.IsEnemy ? _enemies.Item(hero.ChampionName).GetValue<bool>() : _allies.Item(hero.ChampionName).GetValue<bool>();
+            return hero.IsEnemy
+                ? _enemies.Item(hero.ChampionName).GetValue<bool>()
+                : _allies.Item(hero.ChampionName).GetValue<bool>();
         }
     }
 
@@ -182,38 +184,44 @@ namespace UniversalGankAlerter
             index++;
             int textoffset = index * 50;
             _hero = hero;
-            Render.Text text = new Render.Text(new Vector2(), _hero.ChampionName, 20, ally ? new Color { R = 205, G = 255, B = 205, A = 255 } : new Color { R = 255, G = 205, B = 205, A = 255 })
+            Render.Text text = new Render.Text(
+                new Vector2(), _hero.ChampionName, 20,
+                ally
+                    ? new Color { R = 205, G = 255, B = 205, A = 255 }
+                    : new Color { R = 255, G = 205, B = 205, A = 255 })
             {
-                PositionUpdate = () => Drawing.WorldToScreen(ObjectManager.Player.Position.Extend(_hero.Position, 300 + textoffset)),
-                VisibleCondition =
-                    delegate
-                    {
-                        float dist = _hero.Distance(ObjectManager.Player.Position);
-                        return Program.Instance().ShowChampionNames && !_hero.IsDead &&
-                               Game.ClockTime - _lineStart < Program.Instance().LineDuration &&
-                               !Render.OnScreen(Drawing.WorldToScreen(_hero.Position)) &&
-                               dist < Program.Instance().Radius &&
-                               dist > 300 + textoffset; 
-                    },
+                PositionUpdate =
+                    () =>
+                        Drawing.WorldToScreen(
+                            ObjectManager.Player.Position.Extend(_hero.Position, 300 + textoffset)),
+                VisibleCondition = delegate
+                {
+                    float dist = _hero.Distance(ObjectManager.Player.Position);
+                    return Program.Instance().ShowChampionNames && !_hero.IsDead &&
+                           Game.ClockTime - _lineStart < Program.Instance().LineDuration &&
+                           !Render.OnScreen(Drawing.WorldToScreen(_hero.Position)) &&
+                           dist < Program.Instance().Radius && dist > 300 + textoffset;
+                },
                 Centered = true,
                 OutLined = true,
             };
             text.Add(1);
-            _line = new Render.Line(new Vector2(), new Vector2(), 5,
-                ally ? new Color {R = 0, G = 255, B = 0, A = 125} : new Color {R = 255, G = 0, B = 0, A = 125})
+            _line = new Render.Line(
+                new Vector2(), new Vector2(), 5,
+                ally ? new Color { R = 0, G = 255, B = 0, A = 125 } : new Color { R = 255, G = 0, B = 0, A = 125 })
             {
                 StartPositionUpdate = () => Drawing.WorldToScreen(ObjectManager.Player.Position),
                 EndPositionUpdate = () => Drawing.WorldToScreen(_hero.Position),
                 VisibleCondition =
                     delegate
                     {
-                        return !_hero.IsDead &&
-                               Game.ClockTime - _lineStart < Program.Instance().LineDuration
-                               && _hero.Distance(ObjectManager.Player.Position) < (Program.Instance().Radius + 1000);
+                        return !_hero.IsDead && Game.ClockTime - _lineStart < Program.Instance().LineDuration &&
+                               _hero.Distance(ObjectManager.Player.Position) < (Program.Instance().Radius + 1000);
                     }
             };
             _line.Add(0);
-            Render.Line minimapLine = new Render.Line(new Vector2(), new Vector2(), 2,
+            Render.Line minimapLine = new Render.Line(
+                new Vector2(), new Vector2(), 2,
                 ally ? new Color { R = 0, G = 255, B = 0, A = 255 } : new Color { R = 255, G = 0, B = 0, A = 255 })
             {
                 StartPositionUpdate = () => Drawing.WorldToMinimap(ObjectManager.Player.Position),
@@ -221,8 +229,7 @@ namespace UniversalGankAlerter
                 VisibleCondition =
                     delegate
                     {
-                        return !_hero.IsDead &&
-                               Game.ClockTime - _lineStart < Program.Instance().LineDuration;
+                        return !_hero.IsDead && Game.ClockTime - _lineStart < Program.Instance().LineDuration;
                     }
             };
             minimapLine.Add(0);
@@ -237,7 +244,7 @@ namespace UniversalGankAlerter
             {
                 enabled = true;
             }
-            else if(IsJungler(_hero))
+            else if (IsJungler(_hero))
             {
                 enabled = (_hero.IsEnemy && Program.Instance().EnemyJunglerOnly) ||
                           (_hero.IsAlly && Program.Instance().AllyJunglerOnly);
@@ -263,9 +270,8 @@ namespace UniversalGankAlerter
                 float percentage = newDistance / Program.Instance().Radius;
                 if (percentage <= 1)
                 {
-                    _line.Width = (int)(2 + (percentage * 8));
+                    _line.Width = (int) (2 + (percentage * 8));
                 }
-                
             }
 
             if (newDistance < Program.Instance().Radius && _hero.IsVisible)
