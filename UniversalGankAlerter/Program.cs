@@ -18,8 +18,11 @@ namespace UniversalGankAlerter
         private PreviewCircle _previewCircle;
         private MenuItem _sliderCooldown;
         private MenuItem _sliderLineDuration;
-        private MenuItem _dangerPing;
-        private MenuItem _junglerOnly;
+        private MenuItem _enemyJunglerOnly;
+        private MenuItem _allyJunglerOnly;
+        private MenuItem _showChampionNames;
+        private Menu _enemies;
+        private Menu _allies;
 
         public int Radius
         {
@@ -36,14 +39,19 @@ namespace UniversalGankAlerter
             get { return _sliderLineDuration.GetValue<Slider>().Value; }
         }
 
-        public bool DangerPing
+        public bool EnemyJunglerOnly
         {
-            get { return _dangerPing.GetValue<bool>(); }
+            get { return _enemyJunglerOnly.GetValue<bool>(); }
         }
 
-        public bool JunglerOnly
+        public bool AllyJunglerOnly
         {
-            get { return _junglerOnly.GetValue<bool>(); }
+            get { return _allyJunglerOnly.GetValue<bool>(); }
+        }
+
+        public bool ShowChampionNames
+        {
+            get { return _showChampionNames.GetValue<bool>(); }
         }
 
         private static void Main(string[] args)
@@ -66,25 +74,39 @@ namespace UniversalGankAlerter
             _previewCircle = new PreviewCircle();
 
             _menu = new Menu("Universal GankAlerter", "universalgankalerter", true);
-            _sliderRadius = new MenuItem("range", "Max Range").SetValue(new Slider(3000, 500, 5000));
+            _sliderRadius = new MenuItem("range", "Trigger range").SetValue(new Slider(3000, 500, 5000));
             _sliderRadius.ValueChanged += SliderRadiusValueChanged;
-            _sliderCooldown = new MenuItem("cooldown", "Cooldown (seconds)").SetValue(new Slider(10, 0, 60));
-            _sliderLineDuration = new MenuItem("lineduration", "Line Duration (seconds)").SetValue(new Slider(10, 0, 20));
-            _dangerPing = new MenuItem("dangerping", "Danger Ping (local)").SetValue(true);
-            _junglerOnly = new MenuItem("jungleronly", "Warn Jungler Only").SetValue(false);
+            _sliderCooldown = new MenuItem("cooldown", "Trigger cooldown (sec)").SetValue(new Slider(10, 0, 60));
+            _sliderLineDuration = new MenuItem("lineduration", "Line duration (sec)").SetValue(new Slider(10, 0, 20));
+            _enemyJunglerOnly = new MenuItem("jungleronly", "Warn jungler (smite)").SetValue(false);
+            _allyJunglerOnly = new MenuItem("allyjungleronly", "Warn jungler (smite)").SetValue(true);
+            _showChampionNames = new MenuItem("shownames", "Show champion name").SetValue(true);
+            _enemies = new Menu("Enemies", "enemies");
+            _enemies.AddItem(_enemyJunglerOnly);
 
+            _allies = new Menu("Allies","allies");
+            _allies.AddItem(_allyJunglerOnly);
 
             _menu.AddItem(_sliderRadius);
             _menu.AddItem(_sliderCooldown);
             _menu.AddItem(_sliderLineDuration);
-            _menu.AddItem(_dangerPing);
-            _menu.AddItem(_junglerOnly);
+            _menu.AddItem(_showChampionNames);
+            _menu.AddSubMenu(_enemies);
+            _menu.AddSubMenu(_allies);
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>())
             {
-                if (hero.Team != ObjectManager.Player.Team)
+                if (hero.NetworkId != ObjectManager.Player.NetworkId)
                 {
-                    _championInfoById[hero.NetworkId] = new ChampionInfo(hero);
-                    _menu.AddItem(new MenuItem(hero.ChampionName, hero.ChampionName).SetValue(true));
+                    if (hero.IsEnemy)
+                    {
+                        _championInfoById[hero.NetworkId] = new ChampionInfo(hero, false);
+                        _enemies.AddItem(new MenuItem(hero.ChampionName, hero.ChampionName).SetValue(true));
+                    }
+                    else
+                    {
+                        _championInfoById[hero.NetworkId] = new ChampionInfo(hero, true);
+                        _allies.AddItem(new MenuItem(hero.ChampionName, hero.ChampionName).SetValue(false));
+                    }
                 }
             }
             _menu.AddToMainMenu();
@@ -105,7 +127,7 @@ namespace UniversalGankAlerter
 
         public bool IsEnabled(Obj_AI_Hero hero)
         {
-            return _menu.Item(hero.ChampionName).GetValue<bool>();
+            return hero.IsEnemy ? _enemies.Item(hero.ChampionName).GetValue<bool>() : _allies.Item(hero.ChampionName).GetValue<bool>();
         }
     }
 
@@ -143,6 +165,8 @@ namespace UniversalGankAlerter
 
     internal class ChampionInfo
     {
+        private static int index = 0;
+
         private readonly Obj_AI_Hero _hero;
 
         private event EventHandler OnEnterRange;
@@ -151,12 +175,32 @@ namespace UniversalGankAlerter
         private float _distance;
         private float _lastEnter;
         private float _lineStart;
+        private readonly Render.Line _line;
 
-        public ChampionInfo(Obj_AI_Hero hero)
+        public ChampionInfo(Obj_AI_Hero hero, bool ally)
         {
+            index++;
+            int textoffset = index * 50;
             _hero = hero;
-            Render.Line line = new Render.Line(new Vector2(), new Vector2(), 5,
-                new Color {R = 255, G = 0, B = 0, A = 125})
+            Render.Text text = new Render.Text(new Vector2(), _hero.ChampionName, 20, ally ? new Color { R = 205, G = 255, B = 205, A = 255 } : new Color { R = 255, G = 205, B = 205, A = 255 })
+            {
+                PositionUpdate = () => Drawing.WorldToScreen(ObjectManager.Player.Position.Extend(_hero.Position, 300 + textoffset)),
+                VisibleCondition =
+                    delegate
+                    {
+                        float dist = _hero.Distance(ObjectManager.Player.Position);
+                        return Program.Instance().ShowChampionNames && !_hero.IsDead &&
+                               Game.ClockTime - _lineStart < Program.Instance().LineDuration &&
+                               Render.OnScreen(Drawing.WorldToScreen(ObjectManager.Player.Position.Extend(_hero.Position, 300 + textoffset))) &&
+                               dist < Program.Instance().Radius &&
+                               dist > 300 + textoffset; 
+                    },
+                Centered = true,
+                OutLined = true,
+            };
+            text.Add(1);
+            _line = new Render.Line(new Vector2(), new Vector2(), 5,
+                ally ? new Color {R = 0, G = 255, B = 0, A = 125} : new Color {R = 255, G = 0, B = 0, A = 125})
             {
                 StartPositionUpdate = () => Drawing.WorldToScreen(ObjectManager.Player.Position),
                 EndPositionUpdate = () => Drawing.WorldToScreen(_hero.Position),
@@ -164,25 +208,43 @@ namespace UniversalGankAlerter
                     delegate
                     {
                         return !_hero.IsDead &&
+                               Game.ClockTime - _lineStart < Program.Instance().LineDuration
+                               && _hero.Distance(ObjectManager.Player.Position) < (Program.Instance().Radius + 1000);
+                    }
+            };
+            _line.Add(0);
+            Render.Line minimapLine = new Render.Line(new Vector2(), new Vector2(), 2,
+                ally ? new Color { R = 0, G = 255, B = 0, A = 255 } : new Color { R = 255, G = 0, B = 0, A = 255 })
+            {
+                StartPositionUpdate = () => Drawing.WorldToMinimap(ObjectManager.Player.Position),
+                EndPositionUpdate = () => Drawing.WorldToMinimap(_hero.Position),
+                VisibleCondition =
+                    delegate
+                    {
+                        return !_hero.IsDead &&
                                Game.ClockTime - _lineStart < Program.Instance().LineDuration;
                     }
             };
-            line.Add(0);
+            minimapLine.Add(0);
             Game.OnUpdate += Game_OnGameUpdate;
             OnEnterRange += ChampionInfo_OnEnterRange;
         }
 
         private void ChampionInfo_OnEnterRange(object sender, EventArgs e)
         {
-            if (Game.ClockTime - _lastEnter > Program.Instance().Cooldown &&
-                ((IsJungler(_hero) && Program.Instance().JunglerOnly) || !Program.Instance().JunglerOnly) && Program.Instance().IsEnabled(_hero))
+            bool enabled = false;
+            if (Program.Instance().IsEnabled(_hero))
+            {
+                enabled = true;
+            }
+            else if(IsJungler(_hero))
+            {
+                enabled = (_hero.IsEnemy && Program.Instance().EnemyJunglerOnly) ||
+                          (_hero.IsAlly && Program.Instance().AllyJunglerOnly);
+            }
+            if (Game.ClockTime - _lastEnter > Program.Instance().Cooldown && enabled)
             {
                 _lineStart = Game.ClockTime;
-                if (Program.Instance().DangerPing)
-                {
-                    Packet.S2C.Ping.Encoded(new Packet.S2C.Ping.Struct(_hero.Position.X, _hero.Position.Y,
-                        0,0, Packet.PingType.Danger)).Process();
-                }
             }
             _lastEnter = Game.ClockTime;
         }
@@ -195,6 +257,17 @@ namespace UniversalGankAlerter
             }
 
             float newDistance = _hero.Distance(ObjectManager.Player);
+
+            if (Game.ClockTime - _lineStart < Program.Instance().LineDuration)
+            {
+                float percentage = newDistance / Program.Instance().Radius;
+                if (percentage <= 1)
+                {
+                    _line.Width = (int)(2 + (percentage * 8));
+                }
+                
+            }
+
             if (newDistance < Program.Instance().Radius && _hero.IsVisible)
             {
                 if (_distance >= Program.Instance().Radius || !_visible)

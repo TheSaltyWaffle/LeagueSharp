@@ -28,11 +28,6 @@ namespace UniversalMinimapHack
             return ChangeOpacity(finalBitmap);
         }
 
-        private static Bitmap DownloadImage(string championName)
-        {
-            return null; //TODO
-        }
-
         private static string GetCachedPath(string championName)
         {
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UniversalMinimapHackCache");
