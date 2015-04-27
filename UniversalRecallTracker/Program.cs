@@ -99,11 +99,11 @@ namespace UniversalRecallTracker
                 RecallInfo recallInfo = new RecallInfo(hero, i++);
                 _recallInfo[hero] = recallInfo;
             }
-            //_recallInfo[ObjectManager.Player] = new RecallInfo(ObjectManager.Player,i);
+            //_recallInfo[ObjectManager.Player] = new RecallInfo(ObjectManager.Player, i);
             Print("Loaded!");
         }
 
-       private void _barScale_ValueChanged(object sender, OnValueChangeEventArgs e)
+        private void _barScale_ValueChanged(object sender, OnValueChangeEventArgs e)
         {
             foreach (RecallInfo info in _recallInfo.Values)
             {
@@ -163,6 +163,7 @@ namespace UniversalRecallTracker
 
         private readonly Render.Sprite _sprite;
         private readonly Render.Text _countdownText;
+        private readonly Render.Text _healthText;
         private int lastChange;
 
         public RecallInfo(Obj_AI_Hero hero, int index)
@@ -171,21 +172,37 @@ namespace UniversalRecallTracker
             _index = index;
             _sprite = new Render.Sprite(Properties.Resources.RecallBar, new Vector2(0, 0))
             {
-                Scale = new Vector2(Program.Instance().BarScale,Program.Instance().BarScale),
+                Scale = new Vector2(Program.Instance().BarScale, Program.Instance().BarScale),
                 VisibleCondition = sender => _active || Environment.TickCount - lastChange < 3000,
                 PositionUpdate =
                     () =>
                         new Vector2(Program.Instance().X, Program.Instance().Y - (_index * TextFont.Description.Height))
             };
             _sprite.Add(0);
+            _healthText = new Render.Text(0, 0, "", TextFont.Description.Height, Color.Green)
+            {
+                OutLined = true,
+                VisibleCondition = sender => _active || Environment.TickCount - lastChange < 3000,
+                PositionUpdate = delegate
+                {
+                    Rectangle rect = TextFont.MeasureText(null, "(99%)", 0);
+                    return new Vector2(
+                        _sprite.X - rect.Width - GapTextBar,
+                        _sprite.Y - rect.Height / 2 + (_sprite.Height * Program.Instance().BarScale) / 2);
+                },
+                TextUpdate = () => "(" + hero.HealthPercent + "%)"
+            };
+            _healthText.Add(1);
             Render.Text heroText = new Render.Text(0, 0, hero.ChampionName, TextFont.Description.Height, Color.White)
             {
                 OutLined = true,
                 VisibleCondition = sender => _active || Environment.TickCount - lastChange < 3000,
                 PositionUpdate = delegate
                 {
-                    Rectangle rect = TextFont.MeasureText(null, hero.ChampionName, 0);
-                    return new Vector2(_sprite.X - rect.Width - GapTextBar, _sprite.Y - rect.Height / 2 + (_sprite.Height * Program.Instance().BarScale)/2);
+                    Rectangle rect = TextFont.MeasureText(null, hero.ChampionName + _healthText.text, 0);
+                    return new Vector2(
+                        _sprite.X - rect.Width - GapTextBar,
+                        _sprite.Y - rect.Height / 2 + (_sprite.Height * Program.Instance().BarScale) / 2);
                 }
             };
 
@@ -213,7 +230,9 @@ namespace UniversalRecallTracker
                         _active = true;
                         break;
                     case Packet.S2C.Teleport.Status.Finish:
-                        Program.Instance().Notify(_hero.ChampionName + " has recalled.");
+                        int colorIndex = (int) ((_hero.HealthPercent / 100) * 255);
+                        string color = (255 - colorIndex).ToString("X2") + colorIndex.ToString("X2") + "00";
+                        Program.Instance().Notify(_hero.ChampionName + " has recalled with <font color='#" + color + "'>" + _hero.HealthPercent + "&#37; HP</font>");
                         _active = false;
                         break;
                     case Packet.S2C.Teleport.Status.Abort:
@@ -232,17 +251,20 @@ namespace UniversalRecallTracker
 
         private void Game_OnGameUpdate(EventArgs args)
         {
+            float colorIndex = ((_hero.HealthPercent / 100) * 255);
+            _healthText.Color = new ColorBGRA(255 - colorIndex, colorIndex, 0, 255);
             if (_active && _duration > 0)
             {
                 float percentage = (Game.ClockTime - _begin) / (_duration / 1000f);
-                int width = (int)(_sprite.Width - (percentage * _sprite.Width));
+                int width = (int) (_sprite.Width - (percentage * _sprite.Width));
                 _countdownText.X = (int) (_sprite.X + (width * _sprite.Scale.X) + GapTextBar);
                 _countdownText.text =
                     Math.Round(
                         (Decimal) ((_duration / 1000f) - (Game.ClockTime - _begin)), 1, MidpointRounding.AwayFromZero) +
                     "s";
                 Rectangle rect = TextFont.MeasureText(null, _countdownText.text, FontDrawFlags.Center);
-                _countdownText.Y = (int) (_sprite.Y - rect.Height / 2 + (_sprite.Height * Program.Instance().BarScale) / 2);
+                _countdownText.Y =
+                    (int) (_sprite.Y - rect.Height / 2 + (_sprite.Height * Program.Instance().BarScale) / 2);
                 _sprite.Crop(0, 0, width, _sprite.Height);
             }
             else
