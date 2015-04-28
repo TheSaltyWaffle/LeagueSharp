@@ -201,7 +201,7 @@ namespace UniversalRecallTracker
                 {
                     Rectangle rect = TextFont.MeasureText(null, hero.ChampionName + _healthText.text, 0);
                     return new Vector2(
-                        _sprite.X - rect.Width - GapTextBar,
+                        _sprite.X - rect.Width - GapTextBar - 3,
                         _sprite.Y - rect.Height / 2 + (_sprite.Height * Program.Instance().BarScale) / 2);
                 }
             };
