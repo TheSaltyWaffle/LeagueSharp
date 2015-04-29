@@ -78,8 +78,8 @@ namespace UniversalGankAlerter
             _sliderRadius.ValueChanged += SliderRadiusValueChanged;
             _sliderCooldown = new MenuItem("cooldown", "Trigger cooldown (sec)").SetValue(new Slider(10, 0, 60));
             _sliderLineDuration = new MenuItem("lineduration", "Line duration (sec)").SetValue(new Slider(10, 0, 20));
-            _enemyJunglerOnly = new MenuItem("jungleronly", "Warn jungler (smite)").SetValue(false);
-            _allyJunglerOnly = new MenuItem("allyjungleronly", "Warn jungler (smite)").SetValue(true);
+            _enemyJunglerOnly = new MenuItem("jungleronly", "Warn jungler only (smite)").SetValue(false);
+            _allyJunglerOnly = new MenuItem("allyjungleronly", "Warn jungler only (smite)").SetValue(true);
             _showChampionNames = new MenuItem("shownames", "Show champion name").SetValue(true);
             _enemies = new Menu("Enemies", "enemies");
             _enemies.AddItem(_enemyJunglerOnly);
@@ -100,7 +100,7 @@ namespace UniversalGankAlerter
                     if (hero.IsEnemy)
                     {
                         _championInfoById[hero.NetworkId] = new ChampionInfo(hero, false);
-                        _enemies.AddItem(new MenuItem("enemy"+hero.ChampionName, hero.ChampionName).SetValue(true));
+                        _enemies.AddItem(new MenuItem("enemy" + hero.ChampionName, hero.ChampionName).SetValue(true));
                     }
                     else
                     {
@@ -240,15 +240,19 @@ namespace UniversalGankAlerter
         private void ChampionInfo_OnEnterRange(object sender, EventArgs e)
         {
             bool enabled = false;
-            if (Program.Instance().IsEnabled(_hero))
+            if (Program.Instance().EnemyJunglerOnly && _hero.IsEnemy)
             {
-                enabled = true;
+                enabled = IsJungler(_hero);
             }
-            else if (IsJungler(_hero))
+            else if (Program.Instance().AllyJunglerOnly && _hero.IsAlly)
             {
-                enabled = (_hero.IsEnemy && Program.Instance().EnemyJunglerOnly) ||
-                          (_hero.IsAlly && Program.Instance().AllyJunglerOnly);
+                enabled = IsJungler(_hero);
             }
+            else
+            {
+                enabled = Program.Instance().IsEnabled(_hero);
+            }
+
             if (Game.ClockTime - _lastEnter > Program.Instance().Cooldown && enabled)
             {
                 _lineStart = Game.ClockTime;
