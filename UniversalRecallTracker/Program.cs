@@ -251,8 +251,8 @@ namespace UniversalRecallTracker
 
         private void Game_OnGameUpdate(EventArgs args)
         {
-            float colorIndex = ((_hero.HealthPercent / 100) * 255);
-            _healthText.Color = new ColorBGRA(255 - colorIndex, colorIndex, 0, 255);
+            float colorPercentage = (_hero.HealthPercent / 100);
+            _healthText.Color = new ColorBGRA(1 - colorPercentage, colorPercentage, 0, 1);
             if (_active && _duration > 0)
             {
                 float percentage = (Game.ClockTime - _begin) / (_duration / 1000f);
