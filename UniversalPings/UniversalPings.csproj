@@ -35,9 +35,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="clipper_library">
-      <HintPath>D:\Program Files\LeagueSharp\System\clipper_library.dll</HintPath>
-    </Reference>
     <Reference Include="LeagueSharp">
       <HintPath>D:\Program Files\LeagueSharp\System\LeagueSharp.dll</HintPath>
     </Reference>
@@ -49,12 +46,6 @@
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
       <HintPath>D:\Program Files\LeagueSharp\System\SharpDX.Direct3D9.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Toolkit">
-      <HintPath>D:\Program Files\LeagueSharp\System\SharpDX.Toolkit.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Toolkit.Graphics">
-      <HintPath>D:\Program Files\LeagueSharp\System\SharpDX.Toolkit.Graphics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
