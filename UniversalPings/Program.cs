@@ -25,18 +25,17 @@ namespace UniversalPings
 
         ~Program()
         {
-            Game.OnGameUpdate -= GameOnOnGameUpdate;
+            Game.OnUpdate -= GameOnOnGameUpdate;
             Drawing.OnEndScene -= Drawing_OnEndScene;
             Drawing.OnPreReset -= Drawing_OnPreReset;
             Drawing.OnPostReset -= Drawing_OnPostReset;
-            Game.OnGameProcessPacket -= Game_OnGameProcessPacket;
         }
 
         private void Game_OnGameLoad(EventArgs args)
         {
             _menu = new Menu("Universal Pings", "UniversalPings", true);
-            _menu.AddItem(new MenuItem("print", "Show").SetValue(new StringList(new[] { "Champion", "Hero", "Both" })));
-            _menu.AddItem(new MenuItem("block", "[Block Settings]"));
+            _menu.AddItem(new MenuItem("print", "Show").SetValue(new StringList(new[] { "Champion", "Player", "Both" })));
+            /*_menu.AddItem(new MenuItem("block", "[Block Settings]"));
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>())
             {
                 if (hero.Team == ObjectManager.Player.Team && hero.NetworkId != ObjectManager.Player.NetworkId)
@@ -45,15 +44,71 @@ namespace UniversalPings
                         hero.Name + " (" + hero.ChampionName + ")"))
                         .SetValue(false);
                 }
-            }
+            }*/
             _menu.AddToMainMenu();
 
-            Game.OnGameUpdate += GameOnOnGameUpdate;
+            Game.OnPing += Game_OnPing;
+            Game.OnUpdate += GameOnOnGameUpdate;
             Drawing.OnEndScene += Drawing_OnEndScene;
             Drawing.OnPreReset += Drawing_OnPreReset;
             Drawing.OnPostReset += Drawing_OnPostReset;
-            Game.OnGameProcessPacket += Game_OnGameProcessPacket;
             Print("Loaded!");
+        }
+
+        private void Game_OnPing(GamePingEventArgs args)
+        {
+            try
+            {
+                    GameObject srcObject = args.Source;
+                    Obj_AI_Hero src = srcObject as Obj_AI_Hero;
+                    if (src == null)
+                    {
+                        return;
+                    }
+                    MenuItem blockItem = _menu.Item(src.Name);
+                    if (blockItem != null && blockItem.GetValue<bool>())
+                    {
+                        //args.Process = false;
+                        return;
+                    }
+                    GameObject target = args.Target;
+                    if (args.PingType == PingCategory.OnMyWay || !src.IsValid) return;
+                    Color c = Color.White;
+                    switch (args.PingType)
+                    {
+                        case PingCategory.Fallback:
+                        case PingCategory.EnemyMissing:
+                            c = Color.LightYellow;
+                            break;
+                        case PingCategory.AssistMe:
+                            c = Color.LightBlue;
+                            break;
+                        case PingCategory.Danger:
+                            c = new Color(255, 204, 203);
+                            break;
+                    }
+
+                    int selectedIndex = _menu.Item("print").GetValue<StringList>().SelectedIndex;
+                    String name;
+                    switch (selectedIndex)
+                    {
+                        case 0:
+                            name = src.ChampionName;
+                            break;
+                        case 1:
+                            name = src.Name;
+                            break;
+                        default:
+                            name = src.Name + " (" + src.ChampionName + ")";
+                            break;
+                    }
+                    _pings.Add(new Ping(name, Game.ClockTime + 2f, args.Position.X, args.Position.Y, target, c));
+                }
+          
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         private void Drawing_OnPostReset(EventArgs args)
@@ -93,65 +148,6 @@ namespace UniversalPings
             }
         }
 
-        private void Game_OnGameProcessPacket(GamePacketEventArgs args)
-        {
-            try
-            {
-                if (args.PacketData[0] == Packet.S2C.Ping.Header)
-                {
-                    Packet.S2C.Ping.Struct decoded = Packet.S2C.Ping.Decoded(args.PacketData);
-                    GameObject srcObject = ObjectManager.GetUnitByNetworkId<GameObject>(decoded.SourceNetworkId);
-                    Obj_AI_Hero src = srcObject as Obj_AI_Hero;
-                    if (src == null)
-                    {
-                        return;
-                    }
-                    MenuItem blockItem = _menu.Item(src.Name);
-                    if (blockItem != null && blockItem.GetValue<bool>())
-                    {
-                        args.Process = false;
-                        return;
-                    }
-                    GameObject target = ObjectManager.GetUnitByNetworkId<GameObject>(decoded.TargetNetworkId);
-                    if (decoded.Type == Packet.PingType.OnMyWay || !src.IsValid) return;
-                    Color c = Color.White;
-                    switch (decoded.Type)
-                    {
-                        case Packet.PingType.Fallback:
-                        case Packet.PingType.EnemyMissing:
-                            c = Color.LightYellow;
-                            break;
-                        case Packet.PingType.AssistMe:
-                            c = Color.LightBlue;
-                            break;
-                        case Packet.PingType.Danger:
-                            c = new Color(255, 204, 203);
-                            break;
-                    }
-
-                    int selectedIndex = _menu.Item("print").GetValue<StringList>().SelectedIndex;
-                    String name;
-                    switch (selectedIndex)
-                    {
-                        case 0:
-                            name = src.ChampionName;
-                            break;
-                        case 1:
-                            name = src.Name;
-                            break;
-                        default:
-                            name = src.Name + " (" + src.ChampionName + ")";
-                            break;
-                    }
-                    _pings.Add(new Ping(name, Game.ClockTime + 2f, decoded.X, decoded.Y, target, c));
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-        }
-
         private void Print(string msg)
         {
             Game.PrintChat(
@@ -167,12 +163,11 @@ namespace UniversalPings
         {
             End = end;
             Target = target;
-            Loc = new Vector2(x, y);
             Centered = true;
             OutLined = true;
             PositionUpdate = delegate
             {
-                if (Target.NetworkId != 0)
+                if (Target != null && Target.IsValid)
                 {
                     return Drawing.WorldToScreen(Target.Position);
                 }
@@ -184,6 +179,5 @@ namespace UniversalPings
 
         public float End { get; set; }
         public GameObject Target { get; set; }
-        public Vector2 Loc { get; set; }
     }
 }
