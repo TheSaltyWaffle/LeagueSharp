@@ -35,7 +35,7 @@ namespace UniversalPings
         {
             _menu = new Menu("Universal Pings", "UniversalPings", true);
             _menu.AddItem(new MenuItem("print", "Show").SetValue(new StringList(new[] { "Champion", "Player", "Both" })));
-            /*_menu.AddItem(new MenuItem("block", "[Block Settings]"));
+            _menu.AddItem(new MenuItem("block", "[Block Settings]"));
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>())
             {
                 if (hero.Team == ObjectManager.Player.Team && hero.NetworkId != ObjectManager.Player.NetworkId)
@@ -44,7 +44,7 @@ namespace UniversalPings
                         hero.Name + " (" + hero.ChampionName + ")"))
                         .SetValue(false);
                 }
-            }*/
+            }
             _menu.AddToMainMenu();
 
             Game.OnPing += Game_OnPing;
@@ -68,7 +68,7 @@ namespace UniversalPings
                     MenuItem blockItem = _menu.Item(src.Name);
                     if (blockItem != null && blockItem.GetValue<bool>())
                     {
-                        //args.Process = false;
+                        args.Process = false;
                         return;
                     }
                     GameObject target = args.Target;
