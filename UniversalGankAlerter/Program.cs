@@ -264,7 +264,7 @@ namespace UniversalGankAlerter
             if (Game.ClockTime - _lastEnter > Program.Instance().Cooldown && enabled)
             {
                 _lineStart = Game.ClockTime;
-                if (Program.Instance().DangerPing)
+                if (Program.Instance().DangerPing && _hero.IsEnemy)
                 {
                     Game.ShowPing(PingCategory.Danger,_hero, true);
                 }
