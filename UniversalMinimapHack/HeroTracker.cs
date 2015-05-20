@@ -106,10 +106,7 @@ namespace UniversalMinimapHack
             {
                 if (Game.ClockTime - LastSeen >= MinimapHack.Instance().Menu.MinPing && !Pinged)
                 {
-                    Packet.S2C.Ping.Encoded(
-                        new Packet.S2C.Ping.Struct(
-                            LastLocation.X, LastLocation.Y, Hero.NetworkId, ObjectManager.Player.NetworkId,
-                            Packet.PingType.EnemyMissing)).Process();
+                    Game.ShowPing(PingCategory.EnemyMissing,Hero,true);
                     Pinged = true;
                 }
             }
