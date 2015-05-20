@@ -21,6 +21,7 @@ namespace UniversalGankAlerter
         private MenuItem _enemyJunglerOnly;
         private MenuItem _allyJunglerOnly;
         private MenuItem _showChampionNames;
+        private MenuItem _dangerPing;
         private Menu _enemies;
         private Menu _allies;
 
@@ -32,6 +33,11 @@ namespace UniversalGankAlerter
         public int Cooldown
         {
             get { return _sliderCooldown.GetValue<Slider>().Value; }
+        }
+
+        public bool DangerPing
+        {
+            get { return _dangerPing.GetValue<bool>(); }
         }
 
         public int LineDuration
@@ -81,6 +87,7 @@ namespace UniversalGankAlerter
             _enemyJunglerOnly = new MenuItem("jungleronly", "Warn jungler only (smite)").SetValue(false);
             _allyJunglerOnly = new MenuItem("allyjungleronly", "Warn jungler only (smite)").SetValue(true);
             _showChampionNames = new MenuItem("shownames", "Show champion name").SetValue(true);
+            _dangerPing = new MenuItem("dangerping", "Danger Ping (local)").SetValue(false);
             _enemies = new Menu("Enemies", "enemies");
             _enemies.AddItem(_enemyJunglerOnly);
 
@@ -91,6 +98,7 @@ namespace UniversalGankAlerter
             _menu.AddItem(_sliderCooldown);
             _menu.AddItem(_sliderLineDuration);
             _menu.AddItem(_showChampionNames);
+            _menu.AddItem(_dangerPing);
             _menu.AddSubMenu(_enemies);
             _menu.AddSubMenu(_allies);
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>())
@@ -199,7 +207,7 @@ namespace UniversalGankAlerter
                     float dist = _hero.Distance(ObjectManager.Player.Position);
                     return Program.Instance().ShowChampionNames && !_hero.IsDead &&
                            Game.ClockTime - _lineStart < Program.Instance().LineDuration &&
-                           !Render.OnScreen(Drawing.WorldToScreen(_hero.Position)) &&
+                           (!_hero.IsVisible || !Render.OnScreen(Drawing.WorldToScreen(_hero.Position))) &&
                            dist < Program.Instance().Radius && dist > 300 + textoffset;
                 },
                 Centered = true,
@@ -256,6 +264,10 @@ namespace UniversalGankAlerter
             if (Game.ClockTime - _lastEnter > Program.Instance().Cooldown && enabled)
             {
                 _lineStart = Game.ClockTime;
+                if (Program.Instance().DangerPing)
+                {
+                    Game.ShowPing(PingCategory.Danger,_hero, true);
+                }
             }
             _lastEnter = Game.ClockTime;
         }
