@@ -21,6 +21,7 @@ namespace UniversalGankAlerter
         private MenuItem _enemyJunglerOnly;
         private MenuItem _allyJunglerOnly;
         private MenuItem _showChampionNames;
+        private MenuItem _drawMinimapLines;
         private MenuItem _dangerPing;
         private Menu _enemies;
         private Menu _allies;
@@ -60,6 +61,11 @@ namespace UniversalGankAlerter
             get { return _showChampionNames.GetValue<bool>(); }
         }
 
+        public bool DrawMinimapLines
+        {
+            get { return _drawMinimapLines.GetValue<bool>(); }
+        }
+
         private static void Main(string[] args)
         {
             _instance = new Program();
@@ -87,6 +93,7 @@ namespace UniversalGankAlerter
             _enemyJunglerOnly = new MenuItem("jungleronly", "Warn jungler only (smite)").SetValue(false);
             _allyJunglerOnly = new MenuItem("allyjungleronly", "Warn jungler only (smite)").SetValue(true);
             _showChampionNames = new MenuItem("shownames", "Show champion name").SetValue(true);
+            _drawMinimapLines = new MenuItem("drawminimaplines", "Draw minimap lines").SetValue(false);
             _dangerPing = new MenuItem("dangerping", "Danger Ping (local)").SetValue(false);
             _enemies = new Menu("Enemies", "enemies");
             _enemies.AddItem(_enemyJunglerOnly);
@@ -98,6 +105,7 @@ namespace UniversalGankAlerter
             _menu.AddItem(_sliderCooldown);
             _menu.AddItem(_sliderLineDuration);
             _menu.AddItem(_showChampionNames);
+            _menu.AddItem(_drawMinimapLines);
             _menu.AddItem(_dangerPing);
             _menu.AddSubMenu(_enemies);
             _menu.AddSubMenu(_allies);
@@ -237,7 +245,7 @@ namespace UniversalGankAlerter
                 VisibleCondition =
                     delegate
                     {
-                        return !_hero.IsDead && Game.ClockTime - _lineStart < Program.Instance().LineDuration;
+                        return Program.Instance().DrawMinimapLines && !_hero.IsDead && Game.ClockTime - _lineStart < Program.Instance().LineDuration;
                     }
             };
             minimapLine.Add(0);
