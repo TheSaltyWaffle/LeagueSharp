@@ -185,7 +185,7 @@ namespace UniversalRecallTracker
                 VisibleCondition = sender => _active || Environment.TickCount - lastChange < 3000,
                 PositionUpdate = delegate
                 {
-                    Rectangle rect = TextFont.MeasureText(null, "(99%)", 0);
+                    Rectangle rect = TextFont.MeasureText("("+(int) hero.HealthPercent +"%)");
                     return new Vector2(
                         _sprite.X - rect.Width - GapTextBar,
                         _sprite.Y - rect.Height / 2 + (_sprite.Height * Program.Instance().BarScale) / 2);
@@ -199,7 +199,7 @@ namespace UniversalRecallTracker
                 VisibleCondition = sender => _active || Environment.TickCount - lastChange < 3000,
                 PositionUpdate = delegate
                 {
-                    Rectangle rect = TextFont.MeasureText(null, hero.ChampionName + _healthText.text, 0);
+                    Rectangle rect = TextFont.MeasureText(hero.ChampionName + _healthText.text);
                     return new Vector2(
                         _sprite.X - rect.Width - GapTextBar - 3,
                         _sprite.Y - rect.Height / 2 + (_sprite.Height * Program.Instance().BarScale) / 2);
@@ -262,7 +262,7 @@ namespace UniversalRecallTracker
                     Math.Round(
                         (Decimal) ((_duration / 1000f) - (Game.ClockTime - _begin)), 1, MidpointRounding.AwayFromZero) +
                     "s";
-                Rectangle rect = TextFont.MeasureText(null, _countdownText.text, FontDrawFlags.Center);
+                Rectangle rect = TextFont.MeasureText(_countdownText.text);
                 _countdownText.Y =
                     (int) (_sprite.Y - rect.Height / 2 + (_sprite.Height * Program.Instance().BarScale) / 2);
                 _sprite.Crop(0, 0, width, _sprite.Height);
