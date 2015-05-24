@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 
 [assembly: AssemblyTitle("UniversalLeveler")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Levels up spells based on a priority system.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("UniversalLeveler")]

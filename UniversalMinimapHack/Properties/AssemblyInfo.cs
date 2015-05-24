@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 
 [assembly: AssemblyTitle("UniversalMinimapHack")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Shows last seen position and SS circles.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("UniversalMinimapHack")]
