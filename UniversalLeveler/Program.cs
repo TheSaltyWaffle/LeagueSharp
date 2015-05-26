@@ -42,7 +42,6 @@ namespace UniversalLeveler
         private static bool _lastFormatCorrect = true;
         private static int _level;
         private static ALevelStrategy _levelStrategy;
-        private static MenuItem _debug;
         private static MenuItem _delay;
 
         private static void Main(string[] args)
@@ -73,20 +72,24 @@ namespace UniversalLeveler
             var sl = _activate.GetValue<StringList>();
             if (args.NewLevel >= Int32.Parse(sl.SList[sl.SelectedIndex]))
             {
-                SpellSlot spellSlot = _levelStrategy.GetSpellSlotToLevel(args.NewLevel, _priority);
+                SpellSlot spellSlot = _levelStrategy.GetSpellSlotToLevel(args.NewLevel, _priority, false);
                 if (spellSlot != SpellSlot.Unknown)
                 {
                     Level(spellSlot);
+                }
+                else
+                {
+                    SpellSlot spellSlotIgnoreBaseLevel = _levelStrategy.GetSpellSlotToLevel(args.NewLevel, _priority, true);
+                    if (spellSlotIgnoreBaseLevel != SpellSlot.Unknown)
+                    {
+                        Level(spellSlotIgnoreBaseLevel);
+                    }
                 }
             }
         }
 
         private static void Level(SpellSlot spellSlot)
         {
-            if (_debug.GetValue<bool>())
-            {
-                Print("Leveling " + spellSlot);
-            }
             Utility.DelayAction.Add(_delay.GetValue<Slider>().Value, () => ObjectManager.Player.Spellbook.LevelSpell(spellSlot));
         }
 
@@ -111,11 +114,9 @@ namespace UniversalLeveler
                 _menu.AddSubMenu(subMenu);
             }
 
-            _activate = new MenuItem("activate", "Level to start?").SetValue(new StringList(new[] { "2", "3", "4" }));
-            _debug = new MenuItem("debug", "Chat Notification (local)").SetValue(false);
+            _activate = new MenuItem("activate", "Start at level?").SetValue(new StringList(new[] { "2", "3", "4" }));
             _delay = new MenuItem("delay", "LevelUp Delay (ms)").SetValue(new Slider(0, 0, 2000));
             _menu.AddItem(_activate);
-            _menu.AddItem(_debug);
             _menu.AddItem(_delay);
             _menu.AddToMainMenu();
 

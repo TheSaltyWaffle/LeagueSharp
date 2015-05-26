@@ -16,7 +16,7 @@ namespace UniversalLeveler
 
         public abstract int MinimumLevel(SpellSlot spellSlot);
 
-        public abstract SpellSlot GetSpellSlotToLevel(int currentLevel, SpellSlot[] priorities);
+        public abstract SpellSlot GetSpellSlotToLevel(int currentLevel, SpellSlot[] priorities, bool ignoreBaseLevel);
 
         public virtual bool CanLevel(int currentLevel, SpellSlot spellSlot)
         {

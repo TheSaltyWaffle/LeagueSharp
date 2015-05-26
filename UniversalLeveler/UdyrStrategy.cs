@@ -27,12 +27,13 @@ namespace UniversalLeveler
             return _minimumLevelBySpellSlot[spellSlot];
         }
 
-        public override SpellSlot GetSpellSlotToLevel(int currentLevel, SpellSlot[] priorities)
+        public override SpellSlot GetSpellSlotToLevel(int currentLevel, SpellSlot[] priorities, bool ignoreBaseLevel)
         {
             foreach (SpellSlot s in priorities)
             {
-                if (((ObjectManager.Player.Spellbook.GetSpell(s).Level == 0 && currentLevel <= 4) || currentLevel > 4) &&
-                    currentLevel >= Program.GetMinLevel(s) && CanLevel(currentLevel, s))
+                bool baselevel = ignoreBaseLevel || ((ObjectManager.Player.Spellbook.GetSpell(s).Level == 0 && currentLevel <= 4) ||
+                                  currentLevel > 4);
+                if (baselevel && currentLevel >= Program.GetMinLevel(s) && CanLevel(currentLevel, s))
                 {
                     return s;
                 }
