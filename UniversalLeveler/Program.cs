@@ -138,10 +138,6 @@ namespace UniversalLeveler
 
             //CustomEvents.Unit.OnLevelUp += UnitOnOnLevelUp;
             Game.OnUpdate += Game_OnUpdate;
-            Obj_AI_Base.OnLevelUp += delegate(Obj_AI_Base sender, EventArgs eventArgs)
-            {
-                eventArgs.
-            };
             Print("Loaded!");
         }
 
