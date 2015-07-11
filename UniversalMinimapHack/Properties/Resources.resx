@@ -409,6 +409,9 @@
   <data name="Syndra_Square_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Syndra_Square_0.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="TahmKench_Square_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TahmKench_Square_0.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="Talon_Square_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Talon_Square_0.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
