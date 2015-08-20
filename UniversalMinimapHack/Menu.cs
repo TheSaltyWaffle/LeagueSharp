@@ -42,7 +42,7 @@ namespace UniversalMinimapHack
             var ssCircleMenu = new LeagueSharp.Common.Menu("SS Circles", "ccCircles");
             _ssCircle = new MenuItem("ssCircle", "Enable").SetValue(true);
             _ssCircleSize = new MenuItem("ssCircleSize", "Max Circle Size").SetValue(new Slider(7000, 500, 15000));
-            _ssCircleColor = new MenuItem("ssCircleColor", "Circle color").SetValue(Color.Green);
+            _ssCircleColor = new MenuItem("ssCircleColor", "Circle color").SetValue(System.Drawing.Color.Green);
             ssCircleMenu.AddItem(_ssCircle);
             ssCircleMenu.AddItem(_ssCircleSize);
             ssCircleMenu.AddItem(_ssCircleColor);
