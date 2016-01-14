@@ -1,10 +1,6 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Globalization;
-using System.IO;
-using LeagueSharp;
 using UniversalMinimapHack.Properties;
 
 namespace UniversalMinimapHack
@@ -12,35 +8,13 @@ namespace UniversalMinimapHack
     public class ImageLoader
     {
         public static Bitmap Load(string championName)
-        {
-            string cachedPath = GetCachedPath(championName);
-            if (File.Exists(cachedPath))
-            {
-                return ChangeOpacity(new Bitmap(cachedPath));
-            }
+        {            
             var bitmap = Resources.ResourceManager.GetObject(championName + "_Square_0") as Bitmap;
             if (bitmap == null)
             {
                 return ChangeOpacity(CreateFinalImage(Resources.Default));
             }
-            Bitmap finalBitmap = CreateFinalImage(bitmap);
-            finalBitmap.Save(cachedPath);
-            return ChangeOpacity(finalBitmap);
-        }
-
-        private static string GetCachedPath(string championName)
-        {
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UniversalMinimapHackCache");
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-            path = Path.Combine(path, Game.Version);
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-            return Path.Combine(path, championName + ".png");
+            return ChangeOpacity(CreateFinalImage(bitmap));
         }
 
         private static Bitmap CreateFinalImage(Bitmap srcBitmap)

@@ -72,7 +72,13 @@ namespace UniversalMinimapHack
                 float radius = Math.Abs(LastLocation.X - PredictedLocation.X);
                 if (radius < MinimapHack.Instance().Menu.SSCircleSize && MinimapHack.Instance().Menu.SSCircle)
                 {
-                    Utility.DrawCircle(LastLocation, radius, MinimapHack.Instance().Menu.SSCircleColor, 1, 30, true);
+                    System.Drawing.Color c = MinimapHack.Instance().Menu.SSCircleColor;
+                    if (RecallStatus == Packet.S2C.Teleport.Status.Start)
+                    {
+                        c = System.Drawing.Color.Blue;
+                    }
+                    
+                    Utility.DrawCircle(LastLocation, radius, c, 1, 30, true);
                 }
             }
             if (Text.Visible)
