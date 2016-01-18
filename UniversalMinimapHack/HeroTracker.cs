@@ -75,7 +75,7 @@ namespace UniversalMinimapHack
                     System.Drawing.Color c = MinimapHack.Instance().Menu.SSCircleColor;
                     if (RecallStatus == Packet.S2C.Teleport.Status.Start)
                     {
-                        c = System.Drawing.Color.Blue;
+                        c = System.Drawing.Color.LightBlue;
                     }
                     
                     Utility.DrawCircle(LastLocation, radius, c, 1, 30, true);
