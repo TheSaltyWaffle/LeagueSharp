@@ -493,6 +493,16 @@ namespace UniversalMinimapHack.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Jhin_Square_0 {
+            get {
+                object obj = ResourceManager.GetObject("Jhin_Square_0", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Jinx_Square_0 {
             get {
                 object obj = ResourceManager.GetObject("Jinx_Square_0", resourceCulture);
